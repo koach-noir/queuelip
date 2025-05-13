@@ -46,6 +46,30 @@ h2 {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   background-color: rgba(255, 255, 255, 0.7); /* 背景を半透明の白に */
   backdrop-filter: blur(5px); /* 背景のぼかし効果 */
+  transition: box-shadow 0.3s ease, transform 0.2s ease; /* トランジション効果を追加 */
+}
+
+/* アプリコンテナにホバー効果を追加 */
+#app:hover {
+  box-shadow: 0 4px 12px rgba(100, 108, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+/* ホバー状態表示用のスタイル */
+.hover-status {
+  margin-top: 20px;
+  padding: 8px 12px;
+  border-radius: 4px;
+  background-color: rgba(200, 200, 200, 0.5);
+  color: #555;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.hover-status.active {
+  background-color: rgba(100, 108, 255, 0.2);
+  color: #464aaa;
+  font-weight: 500;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -58,5 +82,19 @@ h2 {
     border-color: rgba(85, 85, 85, 0.7);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
     background-color: rgba(60, 60, 60, 0.7); /* ダークモードの背景を半透明に */
+  }
+  
+  #app:hover {
+    box-shadow: 0 4px 12px rgba(146, 149, 255, 0.3);
+  }
+  
+  .hover-status {
+    background-color: rgba(80, 80, 80, 0.5);
+    color: #aaa;
+  }
+  
+  .hover-status.active {
+    background-color: rgba(100, 108, 255, 0.3);
+    color: #a3a5ff;
   }
 }
