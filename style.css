@@ -5,13 +5,18 @@
   font-weight: 400;
 
   color: #0f0f0f;
-  background-color: #f6f6f6;
+  background-color: rgba(246, 246, 246, 0.8); /* 背景を半透明に */
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: transparent; /* bodyの背景を透明に */
 }
 
 .container {
@@ -36,19 +41,22 @@ h2 {
   max-width: 600px;
   margin: 0 auto;
   padding: 2rem;
-  border: 1px solid #ddd;
+  border: 1px solid rgba(221, 221, 221, 0.7);
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background-color: rgba(255, 255, 255, 0.7); /* 背景を半透明の白に */
+  backdrop-filter: blur(5px); /* 背景のぼかし効果 */
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     color: #f6f6f6;
-    background-color: #2f2f2f;
+    background-color: rgba(47, 47, 47, 0.8); /* ダークモードの背景も半透明に */
   }
 
   #app {
-    border-color: #555;
+    border-color: rgba(85, 85, 85, 0.7);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    background-color: rgba(60, 60, 60, 0.7); /* ダークモードの背景を半透明に */
   }
 }
