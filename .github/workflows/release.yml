@@ -8,6 +8,10 @@ on:
       - '.github/**'
       - '!.github/workflows/release.yml'
     
+# 権限を追加：リリース作成にはcontents: write権限が必要
+permissions:
+  contents: write
+
 jobs:
   check-commit:
     runs-on: ubuntu-latest
