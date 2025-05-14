@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="/style.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Popup B</title>
+  </head>
+
+  <body>
+    <div class="popup">
+      <div class="popup-text">B</div>
+      <button id="backButton" class="back-button">back</button>
+    </div>
+    <script type="module">
+      import { appWindow } from "@tauri-apps/api/window";
+      
+      // メインウィンドウ参照を取得
+      const mainWindow = appWindow.getByLabel('main');
+      
+      // 戻るボタンのイベントリスナー
+      document.getElementById('backButton').addEventListener('click', async () => {
+        try {
+          // メインウィンドウを表示
+          await mainWindow.show();
+          
+          // 現在のポップアップウィンドウを閉じる
+          await appWindow.close();
+          
+          console.log('Returned to main window from popup B');
+        } catch (error) {
+          console.error('Error returning to main window:', error);
+        }
+      });
+    </script>
+  </body>
+</html>
