@@ -13,7 +13,68 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ポップアップボタンの設定
   setupPopupButtons();
+
+  // ポップアップからのパラメータを確認
+  checkForPopupParams();
 });
+
+/**
+ * URLからクエリパラメータを取得する
+ * @returns {Object} クエリパラメータのオブジェクト
+ */
+function getQueryParams() {
+  const params = {};
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  
+  for (const [key, value] of urlParams.entries()) {
+    params[key] = value;
+  }
+  
+  return params;
+}
+
+/**
+ * ポップアップからのパラメータを確認し処理する
+ */
+function checkForPopupParams() {
+  const params = getQueryParams();
+  
+  // ポップアップモードの場合
+  if (params.popup) {
+    const popupType = params.type || 'A';
+    console.log(`Initializing popup mode: ${popupType}`);
+    
+    // メインコンテンツを非表示
+    const appContainer = document.getElementById('app');
+    if (appContainer) {
+      appContainer.classList.add('hidden');
+    }
+    
+    // ヘッダーとフッターを非表示
+    const header = document.querySelector('h1');
+    const description = document.querySelector('h1 + p');
+    const footer = document.querySelector('.app-footer');
+    
+    if (header) header.classList.add('hidden');
+    if (description) description.classList.add('hidden');
+    if (footer) footer.classList.add('hidden');
+    
+    // コンテナの設定変更
+    const container = document.querySelector('.container');
+    if (container) {
+      container.style.paddingTop = '0';
+      container.style.height = '100vh';
+      container.style.display = 'flex';
+      container.style.justifyContent = 'center';
+      container.style.alignItems = 'center';
+    }
+    
+    // ポップアップを作成
+    const popup = createPopup(popupType);
+    container.appendChild(popup);
+  }
+}
 
 /**
  * マウスホバー検知機能をセットアップする
@@ -71,55 +132,55 @@ function updateVersionAndTimeDisplay() {
  * ポップアップボタン機能をセットアップする
  */
 function setupPopupButtons() {
-  // メインウィンドウの参照を取得
-  const mainWindow = appWindow;
-  
   // A, B, Cのボタンに対してイベントリスナーを設定
   const buttonA = document.getElementById('buttonA');
   const buttonB = document.getElementById('buttonB');
   const buttonC = document.getElementById('buttonC');
   
   // ポップアップA
-  buttonA.addEventListener('click', async () => {
-    try {
-      // 新しいウィンドウを開く
-      await openPopupWindow('A');
-      // メインウィンドウを非表示
-      await mainWindow.hide();
-      
-      console.log('Popup A displayed, main window hidden');
-    } catch (error) {
-      console.error('Error displaying popup A:', error);
-    }
-  });
+  if (buttonA) {
+    buttonA.addEventListener('click', async () => {
+      try {
+        // 新しいポップアップウィンドウを開く
+        await openPopupWindow('A');
+        // メイン画面を隠す
+        await appWindow.hide();
+        console.log('Popup A displayed, main window hidden');
+      } catch (error) {
+        console.error('Error displaying popup A:', error);
+      }
+    });
+  }
   
   // ポップアップB
-  buttonB.addEventListener('click', async () => {
-    try {
-      // 新しいウィンドウを開く
-      await openPopupWindow('B');
-      // メインウィンドウを非表示
-      await mainWindow.hide();
-      
-      console.log('Popup B displayed, main window hidden');
-    } catch (error) {
-      console.error('Error displaying popup B:', error);
-    }
-  });
+  if (buttonB) {
+    buttonB.addEventListener('click', async () => {
+      try {
+        // 新しいポップアップウィンドウを開く
+        await openPopupWindow('B');
+        // メイン画面を隠す
+        await appWindow.hide();
+        console.log('Popup B displayed, main window hidden');
+      } catch (error) {
+        console.error('Error displaying popup B:', error);
+      }
+    });
+  }
   
   // ポップアップC
-  buttonC.addEventListener('click', async () => {
-    try {
-      // 新しいウィンドウを開く
-      await openPopupWindow('C');
-      // メインウィンドウを非表示
-      await mainWindow.hide();
-      
-      console.log('Popup C displayed, main window hidden');
-    } catch (error) {
-      console.error('Error displaying popup C:', error);
-    }
-  });
+  if (buttonC) {
+    buttonC.addEventListener('click', async () => {
+      try {
+        // 新しいポップアップウィンドウを開く
+        await openPopupWindow('C');
+        // メイン画面を隠す
+        await appWindow.hide();
+        console.log('Popup C displayed, main window hidden');
+      } catch (error) {
+        console.error('Error displaying popup C:', error);
+      }
+    });
+  }
 }
 
 /**
@@ -129,11 +190,14 @@ function setupPopupButtons() {
  */
 async function openPopupWindow(type) {
   try {
-    // Tauriの新しいウィンドウを作成
+    // Tauriの新しいウィンドウを作成 - メインのHTMLを再利用し、クエリパラメータでポップアップ識別
+    const label = `popup${type}`;
+    const url = `index.html?popup=true&type=${type}`;
+    
     const popupWindow = await invoke('create_popup_window', {
-      label: `popup${type}`,
+      label,
       title: `Popup ${type}`,
-      url: `popup${type}.html`
+      url
     });
     
     console.log(`Popup window ${type} created`);
@@ -142,4 +206,48 @@ async function openPopupWindow(type) {
     console.error(`Error creating popup window ${type}:`, error);
     throw error;
   }
+}
+
+/**
+ * ポップアップを作成する
+ * @param {string} text - ポップアップに表示するテキスト (A, B, C)
+ * @returns {HTMLElement} - 作成されたポップアップ要素
+ */
+function createPopup(text) {
+  // ポップアップ要素を作成
+  const popup = document.createElement('div');
+  popup.className = 'popup';
+  popup.id = `popup${text}`;
+  
+  // テキスト要素を作成
+  const textElement = document.createElement('div');
+  textElement.className = 'popup-text';
+  textElement.textContent = text;
+  popup.appendChild(textElement);
+  
+  // 戻るボタンを作成
+  const backButton = document.createElement('button');
+  backButton.className = 'back-button';
+  backButton.textContent = 'back';
+  popup.appendChild(backButton);
+  
+  // 戻るボタンのクリックイベント
+  backButton.addEventListener('click', async () => {
+    try {
+      // メインウィンドウを表示
+      const mainWindow = await appWindow.getByLabel('main');
+      if (mainWindow) {
+        await mainWindow.show();
+      }
+      
+      // 現在のポップアップウィンドウを閉じる
+      await appWindow.close();
+      
+      console.log(`Returned from popup ${text}`);
+    } catch (error) {
+      console.error('Error returning to main window:', error);
+    }
+  });
+  
+  return popup;
 }
