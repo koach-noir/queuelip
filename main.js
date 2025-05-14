@@ -6,6 +6,9 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // マウスホバー検知のためのイベントリスナーを追加
   setupHoverDetection();
+  
+  // バージョン情報と日時の表示を更新
+  updateVersionAndTimeDisplay();
 });
 
 /**
@@ -42,4 +45,20 @@ function setupHoverDetection() {
     // 例：Tauri APIを使ってRust側の関数を呼び出す
     // invoke("handle_hover", { active: false });
   });
+}
+
+/**
+ * バージョン情報と日時の表示を更新する
+ */
+function updateVersionAndTimeDisplay() {
+  // 実際のアプリケーションではTauriのAPIを使ってバージョン情報を取得できます
+  // 例: invoke("get_version").then((version) => {...});
+  
+  // システム日時の更新
+  const systemTimeElement = document.getElementById('system-time');
+  if (systemTimeElement) {
+    const currentDate = new Date();
+    const formattedDate = `最終更新: ${currentDate.getFullYear()}年${String(currentDate.getMonth() + 1).padStart(2, '0')}月${String(currentDate.getDate()).padStart(2, '0')}日 ${String(currentDate.getHours()).padStart(2, '0')}:${String(currentDate.getMinutes()).padStart(2, '0')}:${String(currentDate.getSeconds()).padStart(2, '0')}`;
+    systemTimeElement.textContent = formattedDate;
+  }
 }
