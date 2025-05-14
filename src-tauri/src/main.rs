@@ -19,6 +19,8 @@ async fn create_popup_window(
     .title(title)
     .inner_size(300.0, 400.0)
     .center()
+    .decorations(true)
+    .resizable(false)
     .build();
 
     // エラーハンドリング
@@ -37,6 +39,11 @@ fn main() {
             // メインウィンドウにラベルを追加
             if let Some(main_window) = app.get_window("main") {
                 main_window.set_title("Queuelip")?;
+                
+                // ウィンドウのラベルが正しく設定されていることを確認
+                println!("Main window label: {}", main_window.label());
+            } else {
+                println!("Warning: Main window not found");
             }
             Ok(())
         })
