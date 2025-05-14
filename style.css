@@ -72,6 +72,30 @@ h2 {
   font-weight: 500;
 }
 
+/* アプリフッターのスタイル */
+.app-footer {
+  max-width: 600px;
+  margin: 20px auto 0;
+  padding: 0.8rem;
+  border-top: 1px solid rgba(221, 221, 221, 0.7);
+  font-size: 0.8rem;
+  color: #777;
+  display: flex;
+  justify-content: space-between;
+}
+
+#version-info, #system-time {
+  padding: 0.3rem 0.6rem;
+  background-color: rgba(240, 240, 240, 0.7);
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+#version-info:hover, #system-time:hover {
+  background-color: rgba(100, 108, 255, 0.1);
+  color: #464aaa;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     color: #f6f6f6;
@@ -95,6 +119,21 @@ h2 {
   
   .hover-status.active {
     background-color: rgba(100, 108, 255, 0.3);
+    color: #a3a5ff;
+  }
+  
+  /* ダークモードでのフッタースタイル */
+  .app-footer {
+    border-top-color: rgba(85, 85, 85, 0.7);
+    color: #aaa;
+  }
+  
+  #version-info, #system-time {
+    background-color: rgba(70, 70, 70, 0.7);
+  }
+  
+  #version-info:hover, #system-time:hover {
+    background-color: rgba(100, 108, 255, 0.2);
     color: #a3a5ff;
   }
 }
