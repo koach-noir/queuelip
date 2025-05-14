@@ -7,7 +7,7 @@
   },
   "package": {
     "productName": "Queuelip",
-    "version": "0.1.0"
+    "version": "0.1.2"
   },
   "tauri": {
     "allowlist": {
@@ -71,7 +71,9 @@
         "title": "Queuelip",
         "width": 800,
         "transparent": true,
-        "decorations": true
+        "decorations": true,
+        "label": "main",
+        "url": "index.html"
       }
     ]
   }
