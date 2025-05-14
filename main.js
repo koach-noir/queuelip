@@ -9,6 +9,9 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // バージョン情報と日時の表示を更新
   updateVersionAndTimeDisplay();
+
+  // ポップアップボタンの設定
+  setupPopupButtons();
 });
 
 /**
@@ -61,4 +64,92 @@ function updateVersionAndTimeDisplay() {
     const formattedDate = `最終更新: ${currentDate.getFullYear()}年${String(currentDate.getMonth() + 1).padStart(2, '0')}月${String(currentDate.getDate()).padStart(2, '0')}日 ${String(currentDate.getHours()).padStart(2, '0')}:${String(currentDate.getMinutes()).padStart(2, '0')}:${String(currentDate.getSeconds()).padStart(2, '0')}`;
     systemTimeElement.textContent = formattedDate;
   }
+}
+
+/**
+ * ポップアップボタン機能をセットアップする
+ */
+function setupPopupButtons() {
+  // メインコンテナ
+  const container = document.querySelector('.container');
+  const appContainer = document.getElementById('app');
+  
+  // A, B, Cのボタンに対してイベントリスナーを設定
+  const buttonA = document.getElementById('buttonA');
+  const buttonB = document.getElementById('buttonB');
+  const buttonC = document.getElementById('buttonC');
+  
+  // ポップアップA
+  buttonA.addEventListener('click', () => {
+    // メイン画面を非表示
+    appContainer.classList.add('hidden');
+    
+    // ポップアップAを作成
+    const popupA = createPopup('A');
+    container.appendChild(popupA);
+    
+    console.log('Popup A displayed');
+  });
+  
+  // ポップアップB
+  buttonB.addEventListener('click', () => {
+    // メイン画面を非表示
+    appContainer.classList.add('hidden');
+    
+    // ポップアップBを作成
+    const popupB = createPopup('B');
+    container.appendChild(popupB);
+    
+    console.log('Popup B displayed');
+  });
+  
+  // ポップアップC
+  buttonC.addEventListener('click', () => {
+    // メイン画面を非表示
+    appContainer.classList.add('hidden');
+    
+    // ポップアップCを作成
+    const popupC = createPopup('C');
+    container.appendChild(popupC);
+    
+    console.log('Popup C displayed');
+  });
+}
+
+/**
+ * ポップアップを作成する
+ * @param {string} text - ポップアップに表示するテキスト (A, B, C)
+ * @returns {HTMLElement} - 作成されたポップアップ要素
+ */
+function createPopup(text) {
+  // ポップアップ要素を作成
+  const popup = document.createElement('div');
+  popup.className = 'popup';
+  popup.id = `popup${text}`;
+  
+  // テキスト要素を作成
+  const textElement = document.createElement('div');
+  textElement.className = 'popup-text';
+  textElement.textContent = text;
+  popup.appendChild(textElement);
+  
+  // 戻るボタンを作成
+  const backButton = document.createElement('button');
+  backButton.className = 'back-button';
+  backButton.textContent = 'back';
+  popup.appendChild(backButton);
+  
+  // 戻るボタンのクリックイベント
+  backButton.addEventListener('click', () => {
+    // ポップアップを削除
+    popup.remove();
+    
+    // メイン画面を表示
+    const appContainer = document.getElementById('app');
+    appContainer.classList.remove('hidden');
+    
+    console.log(`Returned from popup ${text}`);
+  });
+  
+  return popup;
 }
