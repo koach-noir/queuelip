@@ -82,6 +82,7 @@ function checkForPopupParams() {
 function setupHoverDetection() {
   // アプリ全体のコンテナ要素
   const appContainer = document.getElementById('app');
+  if (!appContainer) return;
   
   // ホバー状態を表示する要素を作成
   const hoverStatusElement = document.createElement('div');
@@ -234,18 +235,29 @@ function createPopup(text) {
   // 戻るボタンのクリックイベント
   backButton.addEventListener('click', async () => {
     try {
-      // メインウィンドウを表示
+      console.log('Back button clicked, trying to return to main window');
+      
+      // メインウィンドウ参照を取得して表示
       const mainWindow = await appWindow.getByLabel('main');
       if (mainWindow) {
         await mainWindow.show();
+        console.log('Main window shown');
+      } else {
+        console.error('Could not find main window');
       }
       
-      // 現在のポップアップウィンドウを閉じる
-      await appWindow.close();
+      // 現在のウィンドウを閉じる (直接Rust側の関数を呼び出す)
+      await invoke('close_current_window');
       
       console.log(`Returned from popup ${text}`);
     } catch (error) {
       console.error('Error returning to main window:', error);
+      // フォールバック: 別の方法でウィンドウを閉じる試み
+      try {
+        await invoke('close_window_by_label', { label: `popup${text}` });
+      } catch (fallbackError) {
+        console.error('Fallback window close also failed:', fallbackError);
+      }
     }
   });
   
