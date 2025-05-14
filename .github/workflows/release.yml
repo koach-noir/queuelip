@@ -43,6 +43,28 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # キャッシュの設定を追加
+      - name: Cache Rust dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Cache Node modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+            ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -53,11 +75,24 @@ jobs:
         with:
           profile: minimal
 
+      # Windows環境の最適化
+      - name: Configure Windows build environment
+        if: matrix.platform == 'windows-latest'
+        run: |
+          echo "RUSTFLAGS=-C target-feature=+crt-static" >> $GITHUB_ENV
+          echo "CARGO_INCREMENTAL=0" >> $GITHUB_ENV
+          echo "CARGO_NET_RETRY=10" >> $GITHUB_ENV
+          echo "CARGO_BUILD_JOBS=4" >> $GITHUB_ENV
+        shell: bash
+
       - name: Install dependencies
-        run: npm install
+        run: npm install --no-audit --prefer-offline
 
       - name: Build the app
         run: npm run tauri build
+        env:
+          # 並列ビルドを最適化
+          CARGO_BUILD_JOBS: 4
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
