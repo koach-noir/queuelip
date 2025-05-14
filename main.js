@@ -1,5 +1,6 @@
 // main.js
 import { invoke } from "@tauri-apps/api/tauri";
+import { appWindow } from "@tauri-apps/api/window";
 
 document.addEventListener('DOMContentLoaded', () => {
   console.log('Queuelip application initialized');
@@ -70,9 +71,8 @@ function updateVersionAndTimeDisplay() {
  * ポップアップボタン機能をセットアップする
  */
 function setupPopupButtons() {
-  // メインコンテナ
-  const container = document.querySelector('.container');
-  const appContainer = document.getElementById('app');
+  // メインウィンドウの参照を取得
+  const mainWindow = appWindow;
   
   // A, B, Cのボタンに対してイベントリスナーを設定
   const buttonA = document.getElementById('buttonA');
@@ -80,76 +80,66 @@ function setupPopupButtons() {
   const buttonC = document.getElementById('buttonC');
   
   // ポップアップA
-  buttonA.addEventListener('click', () => {
-    // メイン画面を非表示
-    appContainer.classList.add('hidden');
-    
-    // ポップアップAを作成
-    const popupA = createPopup('A');
-    container.appendChild(popupA);
-    
-    console.log('Popup A displayed');
+  buttonA.addEventListener('click', async () => {
+    try {
+      // 新しいウィンドウを開く
+      await openPopupWindow('A');
+      // メインウィンドウを非表示
+      await mainWindow.hide();
+      
+      console.log('Popup A displayed, main window hidden');
+    } catch (error) {
+      console.error('Error displaying popup A:', error);
+    }
   });
   
   // ポップアップB
-  buttonB.addEventListener('click', () => {
-    // メイン画面を非表示
-    appContainer.classList.add('hidden');
-    
-    // ポップアップBを作成
-    const popupB = createPopup('B');
-    container.appendChild(popupB);
-    
-    console.log('Popup B displayed');
+  buttonB.addEventListener('click', async () => {
+    try {
+      // 新しいウィンドウを開く
+      await openPopupWindow('B');
+      // メインウィンドウを非表示
+      await mainWindow.hide();
+      
+      console.log('Popup B displayed, main window hidden');
+    } catch (error) {
+      console.error('Error displaying popup B:', error);
+    }
   });
   
   // ポップアップC
-  buttonC.addEventListener('click', () => {
-    // メイン画面を非表示
-    appContainer.classList.add('hidden');
-    
-    // ポップアップCを作成
-    const popupC = createPopup('C');
-    container.appendChild(popupC);
-    
-    console.log('Popup C displayed');
+  buttonC.addEventListener('click', async () => {
+    try {
+      // 新しいウィンドウを開く
+      await openPopupWindow('C');
+      // メインウィンドウを非表示
+      await mainWindow.hide();
+      
+      console.log('Popup C displayed, main window hidden');
+    } catch (error) {
+      console.error('Error displaying popup C:', error);
+    }
   });
 }
 
 /**
- * ポップアップを作成する
- * @param {string} text - ポップアップに表示するテキスト (A, B, C)
- * @returns {HTMLElement} - 作成されたポップアップ要素
+ * ポップアップウィンドウを開く
+ * @param {string} type - ポップアップの種類 (A, B, C)
+ * @returns {Promise<void>}
  */
-function createPopup(text) {
-  // ポップアップ要素を作成
-  const popup = document.createElement('div');
-  popup.className = 'popup';
-  popup.id = `popup${text}`;
-  
-  // テキスト要素を作成
-  const textElement = document.createElement('div');
-  textElement.className = 'popup-text';
-  textElement.textContent = text;
-  popup.appendChild(textElement);
-  
-  // 戻るボタンを作成
-  const backButton = document.createElement('button');
-  backButton.className = 'back-button';
-  backButton.textContent = 'back';
-  popup.appendChild(backButton);
-  
-  // 戻るボタンのクリックイベント
-  backButton.addEventListener('click', () => {
-    // ポップアップを削除
-    popup.remove();
+async function openPopupWindow(type) {
+  try {
+    // Tauriの新しいウィンドウを作成
+    const popupWindow = await invoke('create_popup_window', {
+      label: `popup${type}`,
+      title: `Popup ${type}`,
+      url: `popup${type}.html`
+    });
     
-    // メイン画面を表示
-    const appContainer = document.getElementById('app');
-    appContainer.classList.remove('hidden');
-    
-    console.log(`Returned from popup ${text}`);
-  });
-  
-  return popup;
+    console.log(`Popup window ${type} created`);
+    return popupWindow;
+  } catch (error) {
+    console.error(`Error creating popup window ${type}:`, error);
+    throw error;
+  }
 }
