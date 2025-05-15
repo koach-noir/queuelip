@@ -13,8 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // ビュー切り替え機能のセットアップ
   setupViewSwitcher();
   
-  // アコーディオン動作のカスタマイズ (必要に応じて)
-  setupAccordions();
+  // アコーディオンコンポーネントの作成
+  setupAccordionComponents();
 });
 
 /**
@@ -172,20 +172,31 @@ function activateNewView(viewName) {
 }
 
 /**
- * アコーディオン機能の動作をカスタマイズする
+ * アコーディオンコンポーネントをセットアップする
  */
-function setupAccordions() {
-  // アコーディオン機能のイベントリスナー（必要に応じてカスタマイズ）
-  const allDetails = document.querySelectorAll('details');
+function setupAccordionComponents() {
+  // ヘッダー情報用アコーディオン
+  const headerAccordion = document.getElementById('header-accordion');
+  if (headerAccordion) {
+    const headerContent = `
+      <h1>Queuelip</h1>
+      <p>キューの動作を持つクリップボードアプリ「Queuelip-キューリップ🌷🌷」</p>
+    `;
+    AccordionManager.createAccordion('詳細情報', headerContent, headerAccordion);
+  }
   
-  allDetails.forEach(details => {
-    details.addEventListener('toggle', () => {
-      // アコーディオンの開閉時のカスタム動作を追加可能
-      if (details.open) {
-        console.log('アコーディオンを開きました');
-      } else {
-        console.log('アコーディオンを閉じました');
-      }
-    });
-  });
+  // フッター情報用アコーディオン
+  const footerAccordion = document.getElementById('footer-accordion');
+  if (footerAccordion) {
+    const footerContent = `
+      <footer class="app-footer">
+        <div id="version-info">バージョン: 0.7.0</div>
+        <div id="system-time">最終更新: 2025年05月15日 08:45:00</div>
+      </footer>
+    `;
+    AccordionManager.createAccordion('バージョン情報', footerContent, footerAccordion);
+    
+    // システム時間を更新（アコーディオン内のDOM要素が作成された後）
+    updateVersionAndTimeDisplay();
+  }
 }
