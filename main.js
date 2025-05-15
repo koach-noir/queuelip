@@ -210,6 +210,31 @@ async function openPopupWindow(type) {
 }
 
 /**
+ * メインウィンドウを確実に表示する
+ * @returns {Promise<void>}
+ */
+async function ensureMainWindowVisible() {
+  console.log('Ensuring main window is visible');
+  
+  try {
+    // 強化されたRust関数を使用してメインウィンドウを表示
+    await invoke('show_main_window');
+    console.log('Main window should now be visible');
+  } catch (error) {
+    console.error('Error showing main window:', error);
+    
+    // メインウィンドウが見つからない場合は新しく作成
+    try {
+      console.log('Attempting to create new main window');
+      await invoke('create_main_window');
+      console.log('New main window created');
+    } catch (fallbackError) {
+      console.error('Failed to create new main window:', fallbackError);
+    }
+  }
+}
+
+/**
  * ポップアップを作成する
  * @param {string} text - ポップアップに表示するテキスト (A, B, C)
  * @returns {HTMLElement} - 作成されたポップアップ要素
@@ -237,26 +262,23 @@ function createPopup(text) {
     try {
       console.log('Back button clicked, trying to return to main window');
       
-      // メインウィンドウ参照を取得して表示
-      const mainWindow = await appWindow.getByLabel('main');
-      if (mainWindow) {
-        await mainWindow.show();
-        console.log('Main window shown');
-      } else {
-        console.error('Could not find main window');
-      }
+      // 先にメインウィンドウを表示（改善版）
+      await ensureMainWindowVisible();
       
-      // 現在のウィンドウを閉じる (直接Rust側の関数を呼び出す)
+      // それから現在のウィンドウを閉じる
       await invoke('close_current_window');
       
       console.log(`Returned from popup ${text}`);
     } catch (error) {
-      console.error('Error returning to main window:', error);
-      // フォールバック: 別の方法でウィンドウを閉じる試み
+      console.error('Error during popup closing sequence:', error);
+      
+      // 最終手段：強制的にフォールバック
       try {
         await invoke('close_window_by_label', { label: `popup${text}` });
-      } catch (fallbackError) {
-        console.error('Fallback window close also failed:', fallbackError);
+        await invoke('create_main_window');
+      } catch (finalError) {
+        console.error('Critical error in window management:', finalError);
+        alert('エラーが発生しました。アプリを再起動してください。');
       }
     }
   });
