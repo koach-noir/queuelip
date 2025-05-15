@@ -11,18 +11,13 @@
   <body>
     <div class="container">
       <!-- アコーディオンエリア - ヘッダー情報 -->
-      <div class="accordion-container">
-        <div class="accordion-header">
-          <button class="accordion-toggle">
-            <span class="toggle-icon">▼</span>
-            <span class="toggle-text">詳細情報を表示</span>
-          </button>
-        </div>
-        <div class="accordion-content">
+      <details>
+        <summary>詳細情報</summary>
+        <div class="details-content">
           <h1>Queuelip</h1>
           <p>キューの動作を持つクリップボードアプリ「Queuelip-キューリップ🌷🌷」</p>
         </div>
-      </div>
+      </details>
       
       <!-- タブナビゲーション -->
       <div class="nav-tabs">
@@ -79,20 +74,15 @@
       </div>
       
       <!-- アコーディオンエリア - フッター情報 -->
-      <div class="accordion-container">
-        <div class="accordion-header">
-          <button class="accordion-toggle">
-            <span class="toggle-icon">▼</span>
-            <span class="toggle-text">バージョン情報を表示</span>
-          </button>
-        </div>
-        <div class="accordion-content">
+      <details>
+        <summary>バージョン情報</summary>
+        <div class="details-content">
           <footer class="app-footer">
-            <div id="version-info">バージョン: 0.5.1</div>
-            <div id="system-time">最終更新: 2025年05月15日 08:33:00</div>
+            <div id="version-info">バージョン: 0.5.2</div>
+            <div id="system-time">最終更新: 2025年05月15日 08:45:00</div>
           </footer>
         </div>
-      </div>
+      </details>
     </div>
     <script type="module" src="/main.js"></script>
   </body>
