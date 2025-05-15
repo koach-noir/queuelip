@@ -40,7 +40,7 @@ function getQueryParams() {
 function checkForPopupParams() {
   const params = getQueryParams();
   
-  // ポップアップモードの場合
+  // ポップアップモードの場合 (互換性のために残しています)
   if (params.popup) {
     const popupType = params.type || 'A';
     console.log(`Initializing popup mode: ${popupType}`);
@@ -99,7 +99,7 @@ function setupHoverDetection() {
     
     // ここで必要なアクションを実行できます
     // 例：Tauri APIを使ってRust側の関数を呼び出す
-    // invoke("handle_hover", { active: true });
+    // invoke(\"handle_hover\", { active: true });
   });
   
   appContainer.addEventListener('mouseleave', () => {
@@ -109,7 +109,7 @@ function setupHoverDetection() {
     
     // ここで必要なアクションを実行できます
     // 例：Tauri APIを使ってRust側の関数を呼び出す
-    // invoke("handle_hover", { active: false });
+    // invoke(\"handle_hover\", { active: false });
   });
 }
 
@@ -118,7 +118,7 @@ function setupHoverDetection() {
  */
 function updateVersionAndTimeDisplay() {
   // 実際のアプリケーションではTauriのAPIを使ってバージョン情報を取得できます
-  // 例: invoke("get_version").then((version) => {...});
+  // 例: invoke(\"get_version\").then((version) => {...});
   
   // システム日時の更新
   const systemTimeElement = document.getElementById('system-time');
@@ -191,9 +191,9 @@ function setupPopupButtons() {
  */
 async function openPopupWindow(type) {
   try {
-    // Tauriの新しいウィンドウを作成 - メインのHTMLを再利用し、クエリパラメータでポップアップ識別
+    // 新しいポップアップHTMLファイルを使用
     const label = `popup${type}`;
-    const url = `index.html?popup=true&type=${type}`;
+    const url = `popup${type}.html`;
     
     const popupWindow = await invoke('create_popup_window', {
       label,
@@ -201,7 +201,7 @@ async function openPopupWindow(type) {
       url
     });
     
-    console.log(`Popup window ${type} created`);
+    console.log(`Popup window ${type} created with URL: ${url}`);
     return popupWindow;
   } catch (error) {
     console.error(`Error creating popup window ${type}:`, error);
