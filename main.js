@@ -1,7 +1,5 @@
 // main.js
 import { invoke } from "@tauri-apps/api/tauri";
-import { appWindow } from "@tauri-apps/api/window";
-import { exit } from "@tauri-apps/api/process";
 
 document.addEventListener('DOMContentLoaded', () => {
   console.log('Queuelip application initialized');
@@ -12,108 +10,33 @@ document.addEventListener('DOMContentLoaded', () => {
   // バージョン情報と日時の表示を更新
   updateVersionAndTimeDisplay();
 
-  // ポップアップボタンの設定
-  setupPopupButtons();
-
-  // ポップアップからのパラメータを確認
-  checkForPopupParams();
-
-  // アプリケーション終了処理の設定
-  setupAppExitHandlers();
+  // ビュー切り替え機能のセットアップ
+  setupViewSwitcher();
 });
-
-/**
- * URLからクエリパラメータを取得する
- * @returns {Object} クエリパラメータのオブジェクト
- */
-function getQueryParams() {
-  const params = {};
-  const queryString = window.location.search;
-  const urlParams = new URLSearchParams(queryString);
-  
-  for (const [key, value] of urlParams.entries()) {
-    params[key] = value;
-  }
-  
-  return params;
-}
-
-/**
- * ポップアップからのパラメータを確認し処理する
- */
-function checkForPopupParams() {
-  const params = getQueryParams();
-  
-  // ポップアップモードの場合 (互換性のために残しています)
-  if (params.popup) {
-    const popupType = params.type || 'A';
-    console.log(`Initializing popup mode: ${popupType}`);
-    
-    // メインコンテンツを非表示
-    const appContainer = document.getElementById('app');
-    if (appContainer) {
-      appContainer.classList.add('hidden');
-    }
-    
-    // ヘッダーとフッターを非表示
-    const header = document.querySelector('h1');
-    const description = document.querySelector('h1 + p');
-    const footer = document.querySelector('.app-footer');
-    
-    if (header) header.classList.add('hidden');
-    if (description) description.classList.add('hidden');
-    if (footer) footer.classList.add('hidden');
-    
-    // コンテナの設定変更
-    const container = document.querySelector('.container');
-    if (container) {
-      container.style.paddingTop = '0';
-      container.style.height = '100vh';
-      container.style.display = 'flex';
-      container.style.justifyContent = 'center';
-      container.style.alignItems = 'center';
-    }
-    
-    // ポップアップを作成
-    const popup = createPopup(popupType);
-    container.appendChild(popup);
-  }
-}
 
 /**
  * マウスホバー検知機能をセットアップする
  */
 function setupHoverDetection() {
   // アプリ全体のコンテナ要素
-  const appContainer = document.getElementById('app');
+  const appContainer = document.getElementById('view-main');
   if (!appContainer) return;
   
-  // ホバー状態を表示する要素を作成
-  const hoverStatusElement = document.createElement('div');
-  hoverStatusElement.id = 'hover-status';
-  hoverStatusElement.className = 'hover-status';
-  hoverStatusElement.innerText = 'ホバー検知: 非アクティブ';
-  appContainer.appendChild(hoverStatusElement);
+  // ホバー状態を表示する要素を取得
+  const hoverStatusElement = document.getElementById('hover-status');
+  if (!hoverStatusElement) return;
   
   // マウスイベントのリスナーを追加
   appContainer.addEventListener('mouseenter', () => {
     hoverStatusElement.innerText = 'ホバー検知: アクティブ';
     hoverStatusElement.classList.add('active');
     console.log('Mouse hover detected');
-    
-    // ここで必要なアクションを実行できます
-    // 例：Tauri APIを使ってRust側の関数を呼び出す
-    // invoke(\"handle_hover\", { active: true });
   });
   
   appContainer.addEventListener('mouseleave', () => {
     hoverStatusElement.innerText = 'ホバー検知: 非アクティブ';
     hoverStatusElement.classList.remove('active');
     console.log('Mouse hover ended');
-    
-    // ここで必要なアクションを実行できます
-    // 例：Tauri APIを使ってRust側の関数を呼び出す
-    // invoke(\"handle_hover\", { active: false });
   });
 }
 
@@ -121,9 +44,6 @@ function setupHoverDetection() {
  * バージョン情報と日時の表示を更新する
  */
 function updateVersionAndTimeDisplay() {
-  // 実際のアプリケーションではTauriのAPIを使ってバージョン情報を取得できます
-  // 例: invoke(\"get_version\").then((version) => {...});
-  
   // システム日時の更新
   const systemTimeElement = document.getElementById('system-time');
   if (systemTimeElement) {
@@ -134,186 +54,116 @@ function updateVersionAndTimeDisplay() {
 }
 
 /**
- * ポップアップボタン機能をセットアップする
+ * ビュー切り替え機能をセットアップする
  */
-function setupPopupButtons() {
+function setupViewSwitcher() {
+  // タブボタンイベントのセットアップ
+  setupTabButtons();
+  
+  // 旧式のポップアップボタンをビュー切り替えに変更
+  setupLegacyButtons();
+}
+
+/**
+ * タブボタンによるビュー切り替え機能をセットアップする
+ */
+function setupTabButtons() {
+  const tabButtons = document.querySelectorAll('.nav-tab');
+  
+  tabButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const targetView = button.getAttribute('data-view');
+      if (targetView) {
+        switchToView(targetView);
+      }
+    });
+  });
+}
+
+/**
+ * 旧式のポップアップボタンをビュー切り替えボタンとして再利用
+ */
+function setupLegacyButtons() {
   // A, B, Cのボタンに対してイベントリスナーを設定
   const buttonA = document.getElementById('buttonA');
   const buttonB = document.getElementById('buttonB');
   const buttonC = document.getElementById('buttonC');
   
-  // ポップアップA
+  // ボタンA
   if (buttonA) {
-    buttonA.addEventListener('click', async () => {
-      try {
-        // 新しいポップアップウィンドウを開く
-        await openPopupWindow('A');
-        // メイン画面を隠す
-        await appWindow.hide();
-        console.log('Popup A displayed, main window hidden');
-      } catch (error) {
-        console.error('Error displaying popup A:', error);
-      }
+    buttonA.addEventListener('click', () => {
+      switchToView('a');
     });
   }
   
-  // ポップアップB
+  // ボタンB
   if (buttonB) {
-    buttonB.addEventListener('click', async () => {
-      try {
-        // 新しいポップアップウィンドウを開く
-        await openPopupWindow('B');
-        // メイン画面を隠す
-        await appWindow.hide();
-        console.log('Popup B displayed, main window hidden');
-      } catch (error) {
-        console.error('Error displaying popup B:', error);
-      }
+    buttonB.addEventListener('click', () => {
+      switchToView('b');
     });
   }
   
-  // ポップアップC
+  // ボタンC
   if (buttonC) {
-    buttonC.addEventListener('click', async () => {
-      try {
-        // 新しいポップアップウィンドウを開く
-        await openPopupWindow('C');
-        // メイン画面を隠す
-        await appWindow.hide();
-        console.log('Popup C displayed, main window hidden');
-      } catch (error) {
-        console.error('Error displaying popup C:', error);
-      }
+    buttonC.addEventListener('click', () => {
+      switchToView('c');
     });
   }
 }
 
 /**
- * ポップアップウィンドウを開く
- * @param {string} type - ポップアップの種類 (A, B, C)
- * @returns {Promise<void>}
+ * 指定されたビューに切り替える
+ * @param {string} viewName - 切り替え先のビュー名 ('main', 'a', 'b', 'c')
  */
-async function openPopupWindow(type) {
-  try {
-    // 新しいポップアップHTMLファイルを使用
-    const label = `popup${type}`;
-    const url = `popup${type}.html`;
+function switchToView(viewName) {
+  console.log(`Switching to view: ${viewName}`);
+  
+  // 現在のアクティブビューとタブを非アクティブ化
+  const currentView = document.querySelector('.view.active');
+  const currentTab = document.querySelector('.nav-tab.active');
+  
+  if (currentView) {
+    // フェードアウトアニメーション
+    currentView.classList.add('fade-out');
     
-    const popupWindow = await invoke('create_popup_window', {
-      label,
-      title: `Popup ${type}`,
-      url
-    });
-    
-    console.log(`Popup window ${type} created with URL: ${url}`);
-    return popupWindow;
-  } catch (error) {
-    console.error(`Error creating popup window ${type}:`, error);
-    throw error;
+    // アニメーション完了後に非アクティブ化
+    setTimeout(() => {
+      currentView.classList.remove('active', 'fade-out');
+      
+      // 新しいビューをアクティブ化
+      activateNewView(viewName);
+    }, 200); // フェードアウト時間に合わせる
+  } else {
+    // 現在のビューがない場合は直接新ビューをアクティブ化
+    activateNewView(viewName);
+  }
+  
+  // タブの切り替え
+  if (currentTab) {
+    currentTab.classList.remove('active');
+  }
+  
+  const newTab = document.querySelector(`.nav-tab[data-view="${viewName}"]`);
+  if (newTab) {
+    newTab.classList.add('active');
   }
 }
 
 /**
- * メインウィンドウを確実に表示する
- * @returns {Promise<void>}
+ * 新しいビューをアクティブ化する
+ * @param {string} viewName - アクティブ化するビュー名
  */
-async function ensureMainWindowVisible() {
-  console.log('Ensuring main window is visible');
+function activateNewView(viewName) {
+  // ビュー要素を取得
+  const newView = document.getElementById(`view-${viewName}`);
   
-  try {
-    // 強化されたRust関数を使用してメインウィンドウを表示
-    await invoke('show_main_window');
-    console.log('Main window should now be visible');
-  } catch (error) {
-    console.error('Error showing main window:', error);
+  if (newView) {
+    // フェードインアニメーション
+    newView.classList.add('active', 'fade-in');
     
-    // メインウィンドウが見つからない場合は新しく作成
-    try {
-      console.log('Attempting to create new main window');
-      await invoke('create_main_window');
-      console.log('New main window created');
-    } catch (fallbackError) {
-      console.error('Failed to create new main window:', fallbackError);
-    }
+    // アニメーション完了後にクラスを整理
+    setTimeout(() => {
+      newView.classList.remove('fade-in');
+    }, 300); // フェードイン時間に合わせる
   }
-}
-
-/**
- * アプリケーション終了処理のセットアップ
- */
-function setupAppExitHandlers() {
-  // メインウィンドウがユーザーによって閉じられるとき
-  appWindow.onCloseRequested(async (event) => {
-    console.log('Main window close requested by user');
-    
-    // デフォルトの閉じる動作を阻止 (より制御された終了のため)
-    event.preventDefault();
-    
-    try {
-      // 必要なクリーンアップ処理を実行（データの保存など）
-      console.log('Performing cleanup before exit...');
-      
-      // クリーンアップが完了したらアプリケーション全体を終了
-      console.log('Exiting application...');
-      await exit(0); // 正常終了コード
-    } catch (error) {
-      console.error('Error during application exit:', error);
-      // エラー時は強制終了
-      await exit(1); // エラー終了コード
-    }
-  });
-}
-
-/**
- * ポップアップを作成する
- * @param {string} text - ポップアップに表示するテキスト (A, B, C)
- * @returns {HTMLElement} - 作成されたポップアップ要素
- */
-function createPopup(text) {
-  // ポップアップ要素を作成
-  const popup = document.createElement('div');
-  popup.className = 'popup';
-  popup.id = `popup${text}`;
-  
-  // テキスト要素を作成
-  const textElement = document.createElement('div');
-  textElement.className = 'popup-text';
-  textElement.textContent = text;
-  popup.appendChild(textElement);
-  
-  // 戻るボタンを作成
-  const backButton = document.createElement('button');
-  backButton.className = 'back-button';
-  backButton.textContent = 'back';
-  popup.appendChild(backButton);
-  
-  // 戻るボタンのクリックイベント
-  backButton.addEventListener('click', async () => {
-    try {
-      console.log('Back button clicked, trying to return to main window');
-      
-      // 先にメインウィンドウを表示（改善版）
-      await ensureMainWindowVisible();
-      
-      // 少し遅延させてから現在のウィンドウを閉じる
-      setTimeout(async () => {
-        // それから現在のウィンドウを閉じる
-        await invoke('close_current_window');
-        console.log(`Returned from popup ${text}`);
-      }, 100);
-    } catch (error) {
-      console.error('Error during popup closing sequence:', error);
-      
-      // 最終手段：強制的にフォールバック
-      try {
-        await invoke('close_window_by_label', { label: `popup${text}` });
-        await invoke('create_main_window');
-      } catch (finalError) {
-        console.error('Critical error in window management:', finalError);
-        alert('エラーが発生しました。アプリを再起動してください。');
-      }
-    }
-  });
-  
-  return popup;
 }
