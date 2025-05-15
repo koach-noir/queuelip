@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="/style.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Popup B</title>
+  </head>
+
+  <body>
+    <div class="container" style="padding-top: 0; height: 100vh; display: flex; justify-content: center; align-items: center;">
+      <div class="popup" id="popupB">
+        <div class="popup-text">B</div>
+        <button class="back-button" id="backButton">back</button>
+      </div>
+    </div>
+    <script>
+      // Tauriのモジュールをインポート
+      const { invoke } = window.__TAURI__.tauri;
+      
+      document.addEventListener('DOMContentLoaded', () => {
+        console.log('Popup B initialized');
+        
+        // 戻るボタンのクリックイベント
+        const backButton = document.getElementById('backButton');
+        if (backButton) {
+          backButton.addEventListener('click', async () => {
+            try {
+              console.log('Back button clicked, trying to return to main window');
+              
+              // メインウィンドウを表示
+              await invoke('show_main_window');
+              
+              // 現在のウィンドウを閉じる
+              await invoke('close_current_window');
+              
+              console.log('Returned from popup B');
+            } catch (error) {
+              console.error('Error during popup closing sequence:', error);
+              
+              // 最終手段：強制的にフォールバック
+              try {
+                await invoke('close_window_by_label', { label: 'popupB' });
+                await invoke('create_main_window');
+              } catch (finalError) {
+                console.error('Critical error in window management:', finalError);
+                alert('エラーが発生しました。アプリを再起動してください。');
+              }
+            }
+          });
+        }
+      });
+    </script>
+  </body>
+</html>
