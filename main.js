@@ -1,6 +1,7 @@
 // main.js
 import { invoke } from "@tauri-apps/api/tauri";
 import { appWindow } from "@tauri-apps/api/window";
+import { exit } from "@tauri-apps/api/process";
 
 document.addEventListener('DOMContentLoaded', () => {
   console.log('Queuelip application initialized');
@@ -16,6 +17,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ポップアップからのパラメータを確認
   checkForPopupParams();
+
+  // アプリケーション終了処理の設定
+  setupAppExitHandlers();
 });
 
 /**
@@ -235,6 +239,32 @@ async function ensureMainWindowVisible() {
 }
 
 /**
+ * アプリケーション終了処理のセットアップ
+ */
+function setupAppExitHandlers() {
+  // メインウィンドウがユーザーによって閉じられるとき
+  appWindow.onCloseRequested(async (event) => {
+    console.log('Main window close requested by user');
+    
+    // デフォルトの閉じる動作を阻止 (より制御された終了のため)
+    event.preventDefault();
+    
+    try {
+      // 必要なクリーンアップ処理を実行（データの保存など）
+      console.log('Performing cleanup before exit...');
+      
+      // クリーンアップが完了したらアプリケーション全体を終了
+      console.log('Exiting application...');
+      await exit(0); // 正常終了コード
+    } catch (error) {
+      console.error('Error during application exit:', error);
+      // エラー時は強制終了
+      await exit(1); // エラー終了コード
+    }
+  });
+}
+
+/**
  * ポップアップを作成する
  * @param {string} text - ポップアップに表示するテキスト (A, B, C)
  * @returns {HTMLElement} - 作成されたポップアップ要素
@@ -265,10 +295,12 @@ function createPopup(text) {
       // 先にメインウィンドウを表示（改善版）
       await ensureMainWindowVisible();
       
-      // それから現在のウィンドウを閉じる
-      await invoke('close_current_window');
-      
-      console.log(`Returned from popup ${text}`);
+      // 少し遅延させてから現在のウィンドウを閉じる
+      setTimeout(async () => {
+        // それから現在のウィンドウを閉じる
+        await invoke('close_current_window');
+        console.log(`Returned from popup ${text}`);
+      }, 100);
     } catch (error) {
       console.error('Error during popup closing sequence:', error);
       
