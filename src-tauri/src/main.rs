@@ -27,7 +27,7 @@ async fn create_popup_window(
 
     // エラーハンドリング
     match popup_win {
-        Ok(window) => {
+        Ok(_window) => {
             println!("Popup window '{}' created successfully", label);
             Ok(())
         },
@@ -148,7 +148,10 @@ async fn create_main_window(app_handle: tauri::AppHandle) -> Result<(), String> 
     // メインウィンドウが既に存在するか確認
     if let Some(existing) = app_handle.get_window("main") {
         println!("Main window already exists, showing it");
-        existing.show()?;
+        // ?演算子を使わず、明示的にエラーハンドリング
+        if let Err(e) = existing.show() {
+            return Err(format!("Failed to show existing main window: {}", e));
+        }
         return Ok(());
     }
     
@@ -164,7 +167,7 @@ async fn create_main_window(app_handle: tauri::AppHandle) -> Result<(), String> 
     .build();
     
     match new_main {
-        Ok(window) => {
+        Ok(_window) => {
             println!("New main window created successfully");
             Ok(())
         },
