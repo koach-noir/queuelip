@@ -1,71 +1,55 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Popup A - Queuelip</title>
-    <link rel="stylesheet" href="/style.css">
-    <link rel="stylesheet" href="/accordion.css">
-    <script src="/accordion-manager.js"></script>
-</head>
-<body>
-    <div class="container">
-        <div class="popup" id="popupA">
-            <div class="popup-text">A</div>
-            
-            <!-- アコーディオンコンテナ -->
-            <div class="accordion-container">
-                <!-- アコーディオン1 -->
-                <details>
-                    <summary>アコーディオン1</summary>
-                    <div class="details-content">
-                        <p>これはアコーディオン1の内容です。</p>
-                        <p>HTMLの&lt;details&gt;と&lt;summary&gt;タグで作られています。</p>
-                        <ul>
-                            <li>ブラウザ内検索対応</li>
-                            <li>アクセシビリティ対応</li>
-                            <li>CSSだけでアニメーション</li>
-                        </ul>
-                    </div>
-                </details>
-                
-                <!-- アコーディオン2 -->
-                <details>
-                    <summary>アコーディオン2</summary>
-                    <div class="details-content">
-                        <p>これはアコーディオン2の内容です。</p>
-                        <p>複数のアコーディオンを簡単に追加できます。</p>
-                        <p>コンテンツの高さは自動的に調整されます。</p>
-                    </div>
-                </details>
-            </div>
-            
-            <button class="back-button">back</button>
-        </div>
-    </div>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="/style.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Popup A</title>
+  </head>
 
+  <body>
+    <div class="container" style="padding-top: 0; height: 100vh; display: flex; justify-content: center; align-items: center;">
+      <div class="popup" id="popupA">
+        <div class="popup-text">A</div>
+        <button class="back-button" id="backButton">back</button>
+      </div>
+    </div>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // 戻るボタンのクリックイベント
-            const backButton = document.querySelector('.back-button');
-            if (backButton) {
-                backButton.addEventListener('click', async () => {
-                    try {
-                        // このイベントは実際はmain.jsで処理されます
-                        console.log('Back button clicked, trying to return to main window');
-                        
-                        // Tauriアプリの場合、次のような処理が行われます
-                        // await invoke('show_main_window');
-                        // await invoke('close_current_window');
-                        
-                        // テスト用に、通常のウェブページとして開いた場合は履歴を戻る
-                        window.history.back();
-                    } catch (error) {
-                        console.error('Error during navigation:', error);
-                    }
-                });
+      // Tauriのモジュールをインポート
+      const { invoke } = window.__TAURI__.tauri;
+      
+      document.addEventListener('DOMContentLoaded', () => {
+        console.log('Popup A initialized');
+        
+        // 戻るボタンのクリックイベント
+        const backButton = document.getElementById('backButton');
+        if (backButton) {
+          backButton.addEventListener('click', async () => {
+            try {
+              console.log('Back button clicked, trying to return to main window');
+              
+              // メインウィンドウを表示
+              await invoke('show_main_window');
+              
+              // 現在のウィンドウを閉じる
+              await invoke('close_current_window');
+              
+              console.log('Returned from popup A');
+            } catch (error) {
+              console.error('Error during popup closing sequence:', error);
+              
+              // 最終手段：強制的にフォールバック
+              try {
+                await invoke('close_window_by_label', { label: 'popupA' });
+                await invoke('create_main_window');
+              } catch (finalError) {
+                console.error('Critical error in window management:', finalError);
+                alert('エラーが発生しました。アプリを再起動してください。');
+              }
             }
-        });
+          });
+        }
+      });
     </script>
-</body>
+  </body>
 </html>
