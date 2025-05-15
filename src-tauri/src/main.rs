@@ -178,6 +178,14 @@ async fn create_main_window(app_handle: tauri::AppHandle) -> Result<(), String> 
     }
 }
 
+// アプリケーションを強制終了する関数
+#[tauri::command]
+async fn force_quit_app(app_handle: tauri::AppHandle) -> Result<(), String> {
+    println!("Force quitting application");
+    app_handle.exit(0);
+    Ok(())
+}
+
 fn main() {
     tauri::Builder::default()
         // コマンドを登録
@@ -186,7 +194,8 @@ fn main() {
             close_current_window,
             close_window_by_label,
             show_main_window,
-            create_main_window
+            create_main_window,
+            force_quit_app
         ])
         // メインウィンドウにラベルを設定
         .setup(|app| {
@@ -196,6 +205,21 @@ fn main() {
                 
                 // ウィンドウのラベルが正しく設定されていることを確認
                 println!("Main window label: {}", main_window.label());
+                
+                // メインウィンドウが閉じられたときのイベントハンドラ
+                let app_handle = app.handle().clone();
+                main_window.on_window_event(move |event| {
+                    match event {
+                        tauri::WindowEvent::CloseRequested { api, .. } => {
+                            println!("Main window close requested, exiting application");
+                            // API経由での閉じる操作を阻止（アプリ側でcloseを実行してもらう）
+                            api.prevent_close();
+                            // アプリケーション全体を終了
+                            app_handle.exit(0);
+                        },
+                        _ => {}
+                    }
+                });
             } else {
                 println!("Warning: Main window not found");
             }
