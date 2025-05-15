@@ -48,62 +48,6 @@ p {
   border-left: 3px solid #007bff;
 }
 
-/* アコーディオンコンポーネントのスタイル */
-.accordion-container {
-  margin-bottom: 1rem;
-  border-radius: 6px;
-  overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-.accordion-header {
-  background-color: #f8f9fa;
-  padding: 0;
-  border-bottom: 1px solid #eee;
-}
-
-.accordion-toggle {
-  width: 100%;
-  text-align: left;
-  padding: 0.5rem 1rem;
-  background: none;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  font-size: 0.9rem;
-  color: #6c757d;
-  transition: all 0.2s ease;
-}
-
-.accordion-toggle:hover {
-  background-color: #f1f3f5;
-  color: #495057;
-}
-
-.toggle-icon {
-  margin-right: 0.5rem;
-  font-size: 0.8rem;
-  transition: transform 0.2s ease;
-}
-
-.toggle-icon.open {
-  transform: rotate(-90deg);
-}
-
-.accordion-content {
-  height: 0;
-  overflow: hidden;
-  transition: height 0.3s ease;
-  padding: 0 1rem;
-}
-
-.accordion-content.open {
-  height: auto;
-  padding: 1rem;
-  background-color: #fff;
-}
-
 /* ナビゲーションタブのスタイル */
 .nav-tabs {
   display: flex;
