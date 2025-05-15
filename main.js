@@ -1,6 +1,5 @@
 // main.js
 import { invoke } from "@tauri-apps/api/tauri";
-import { setupAccordions } from "./accordion-manager.js";
 
 document.addEventListener('DOMContentLoaded', () => {
   console.log('Queuelip application initialized');
@@ -14,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // ビュー切り替え機能のセットアップ
   setupViewSwitcher();
   
-  // アコーディオン機能のセットアップ
+  // アコーディオン動作のカスタマイズ (必要に応じて)
   setupAccordions();
 });
 
@@ -170,4 +169,23 @@ function activateNewView(viewName) {
       newView.classList.remove('fade-in');
     }, 300); // フェードイン時間に合わせる
   }
+}
+
+/**
+ * アコーディオン機能の動作をカスタマイズする
+ */
+function setupAccordions() {
+  // アコーディオン機能のイベントリスナー（必要に応じてカスタマイズ）
+  const allDetails = document.querySelectorAll('details');
+  
+  allDetails.forEach(details => {
+    details.addEventListener('toggle', () => {
+      // アコーディオンの開閉時のカスタム動作を追加可能
+      if (details.open) {
+        console.log('アコーディオンを開きました');
+      } else {
+        console.log('アコーディオンを閉じました');
+      }
+    });
+  });
 }
