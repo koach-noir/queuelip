@@ -14,42 +14,7 @@
         <button class="back-button" id="backButton">back</button>
       </div>
     </div>
-    <script>
-      // Tauriのモジュールをインポート
-      const { invoke } = window.__TAURI__.tauri;
-      
-      document.addEventListener('DOMContentLoaded', () => {
-        console.log('Popup C initialized');
-        
-        // 戻るボタンのクリックイベント
-        const backButton = document.getElementById('backButton');
-        if (backButton) {
-          backButton.addEventListener('click', async () => {
-            try {
-              console.log('Back button clicked, trying to return to main window');
-              
-              // メインウィンドウを表示
-              await invoke('show_main_window');
-              
-              // 現在のウィンドウを閉じる
-              await invoke('close_current_window');
-              
-              console.log('Returned from popup C');
-            } catch (error) {
-              console.error('Error during popup closing sequence:', error);
-              
-              // 最終手段：強制的にフォールバック
-              try {
-                await invoke('close_window_by_label', { label: 'popupC' });
-                await invoke('create_main_window');
-              } catch (finalError) {
-                console.error('Critical error in window management:', finalError);
-                alert('エラーが発生しました。アプリを再起動してください。');
-              }
-            }
-          });
-        }
-      });
-    </script>
+    <!-- 共通のJSファイルを使用 -->
+    <script type="module" src="/popup-common.js"></script>
   </body>
 </html>
