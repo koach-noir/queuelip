@@ -37,10 +37,12 @@ async fn create_popup_window(
         Ok(window) => {
             println!("Popup window '{}' created successfully", label);
             
+            // 先にウィンドウのラベルを取得しておく
+            let window_label = window.label().to_string();
+            
             // ポップアップウィンドウが閉じられたときのイベントハンドラを追加
-            let window_clone = window.clone();
             let app_handle_clone = app_handle.clone();
-            window_clone.on_window_event(move |event| {
+            window.on_window_event(move |event| {
                 match event {
                     tauri::WindowEvent::CloseRequested { api, .. } => {
                         println!("Popup window close requested, showing main window");
@@ -55,14 +57,14 @@ async fn create_popup_window(
                         }
                         
                         // 少し遅延させてから現在のウィンドウを閉じる
-                        let window_label = window_clone.label().to_string();
                         let app_handle_for_close = app_handle_clone.clone();
+                        let wl = window_label.clone(); // ラベルをクローンして使用
                         tauri::async_runtime::spawn(async move {
                             // 200ms待機
                             std::thread::sleep(std::time::Duration::from_millis(200));
                             
                             // ウィンドウを取得して閉じる
-                            if let Some(win_to_close) = app_handle_for_close.get_window(&window_label) {
+                            if let Some(win_to_close) = app_handle_for_close.get_window(&wl) {
                                 let _ = win_to_close.close();
                             }
                         });
@@ -226,15 +228,16 @@ async fn force_quit_app(app_handle: tauri::AppHandle) -> Result<(), String> {
     println!("Force quitting application");
     
     // 終了フラグをセット
-    let state: tauri::State<AppState> = app_handle.clone().state();
+    let app_handle_clone = app_handle.clone();
+    let state = app_handle_clone.state::<AppState>();
     let mut should_exit = state.should_exit.lock().unwrap();
     *should_exit = true;
     
     // 少し遅延させてからアプリケーションを終了
-    let app_handle_clone = app_handle.clone();
+    let app_handle_for_exit = app_handle.clone();
     std::thread::spawn(move || {
         std::thread::sleep(std::time::Duration::from_millis(300));
-        app_handle_clone.exit(0);
+        app_handle_for_exit.exit(0);
     });
     
     Ok(())
