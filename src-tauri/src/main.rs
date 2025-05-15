@@ -1,6 +1,13 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use tauri::{Manager, WindowBuilder, WindowUrl, Window};
+use std::sync::Mutex;
+use tauri::{Manager, WindowBuilder, WindowUrl, Window, AppHandle, RunEvent};
+
+// グローバル状態を管理するためのアプリケーション状態構造体
+struct AppState {
+    // アプリケーションが正常に終了するべきかのフラグ
+    should_exit: Mutex<bool>,
+}
 
 // ポップアップウィンドウを作成する関数
 #[tauri::command]
@@ -27,8 +34,42 @@ async fn create_popup_window(
 
     // エラーハンドリング
     match popup_win {
-        Ok(_window) => {
+        Ok(window) => {
             println!("Popup window '{}' created successfully", label);
+            
+            // ポップアップウィンドウが閉じられたときのイベントハンドラを追加
+            let app_handle_clone = app_handle.clone();
+            window.on_window_event(move |event| {
+                match event {
+                    tauri::WindowEvent::CloseRequested { api, .. } => {
+                        println!("Popup window close requested, showing main window");
+                        // API経由での閉じる操作を阻止（カスタム動作のため）
+                        api.prevent_close();
+                        
+                        // メインウィンドウを表示
+                        let main_window = app_handle_clone.get_window("main");
+                        if let Some(main_win) = main_window {
+                            let _ = main_win.show();
+                            let _ = main_win.set_focus();
+                        }
+                        
+                        // 少し遅延させてから現在のウィンドウを閉じる
+                        let window_label = window.label().to_string();
+                        let app_handle_for_close = app_handle_clone.clone();
+                        tauri::async_runtime::spawn(async move {
+                            // 200ms待機
+                            std::thread::sleep(std::time::Duration::from_millis(200));
+                            
+                            // ウィンドウを取得して閉じる
+                            if let Some(win_to_close) = app_handle_for_close.get_window(&window_label) {
+                                let _ = win_to_close.close();
+                            }
+                        });
+                    },
+                    _ => {}
+                }
+            });
+            
             Ok(())
         },
         Err(e) => {
@@ -182,12 +223,27 @@ async fn create_main_window(app_handle: tauri::AppHandle) -> Result<(), String> 
 #[tauri::command]
 async fn force_quit_app(app_handle: tauri::AppHandle) -> Result<(), String> {
     println!("Force quitting application");
-    app_handle.exit(0);
+    
+    // 終了フラグをセット
+    let state: tauri::State<AppState> = app_handle.state();
+    let mut should_exit = state.should_exit.lock().unwrap();
+    *should_exit = true;
+    
+    // 少し遅延させてからアプリケーションを終了
+    std::thread::spawn(move || {
+        std::thread::sleep(std::time::Duration::from_millis(300));
+        app_handle.exit(0);
+    });
+    
     Ok(())
 }
 
 fn main() {
     tauri::Builder::default()
+        // アプリケーション状態を初期化
+        .manage(AppState {
+            should_exit: Mutex::new(false),
+        })
         // コマンドを登録
         .invoke_handler(tauri::generate_handler![
             create_popup_window,
@@ -212,8 +268,9 @@ fn main() {
                     match event {
                         tauri::WindowEvent::CloseRequested { api, .. } => {
                             println!("Main window close requested, exiting application");
-                            // API経由での閉じる操作を阻止（アプリ側でcloseを実行してもらう）
+                            // API経由での閉じる操作を阻止（アプリ側でexitを実行するため）
                             api.prevent_close();
+                            
                             // アプリケーション全体を終了
                             app_handle.exit(0);
                         },
@@ -225,6 +282,27 @@ fn main() {
             }
             Ok(())
         })
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        // イベントループ終了後のクリーンアップ処理
+        .build(tauri::generate_context!())
+        .expect("error while building tauri application")
+        .run(|_app_handle, event| match event {
+            // ウィンドウがすべて閉じられたとき
+            RunEvent::WindowEvent { label, event: tauri::WindowEvent::CloseRequested { .. }, .. } => {
+                println!("Window '{}' has been closed", label);
+                
+                // メインウィンドウが閉じられた場合は、アプリケーションを終了
+                if label == "main" {
+                    println!("Main window closed, exiting application");
+                    _app_handle.exit(0);
+                }
+            },
+            // アプリケーション終了時
+            RunEvent::ExitRequested { api, .. } => {
+                println!("Application exit requested");
+                // アプリケーションの終了を許可
+                api.prevent_exit();
+                _app_handle.exit(0);
+            },
+            _ => {},
+        });
 }
