@@ -1,7 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use std::sync::Mutex;
-use tauri::{Manager, WindowBuilder, WindowUrl, Window, AppHandle, RunEvent};
+use tauri::{Manager, WindowBuilder, WindowUrl, Window, RunEvent};
 
 // グローバル状態を管理するためのアプリケーション状態構造体
 struct AppState {
@@ -38,8 +38,9 @@ async fn create_popup_window(
             println!("Popup window '{}' created successfully", label);
             
             // ポップアップウィンドウが閉じられたときのイベントハンドラを追加
+            let window_clone = window.clone();
             let app_handle_clone = app_handle.clone();
-            window.on_window_event(move |event| {
+            window_clone.on_window_event(move |event| {
                 match event {
                     tauri::WindowEvent::CloseRequested { api, .. } => {
                         println!("Popup window close requested, showing main window");
@@ -54,7 +55,7 @@ async fn create_popup_window(
                         }
                         
                         // 少し遅延させてから現在のウィンドウを閉じる
-                        let window_label = window.label().to_string();
+                        let window_label = window_clone.label().to_string();
                         let app_handle_for_close = app_handle_clone.clone();
                         tauri::async_runtime::spawn(async move {
                             // 200ms待機
@@ -225,14 +226,15 @@ async fn force_quit_app(app_handle: tauri::AppHandle) -> Result<(), String> {
     println!("Force quitting application");
     
     // 終了フラグをセット
-    let state: tauri::State<AppState> = app_handle.state();
+    let state: tauri::State<AppState> = app_handle.clone().state();
     let mut should_exit = state.should_exit.lock().unwrap();
     *should_exit = true;
     
     // 少し遅延させてからアプリケーションを終了
+    let app_handle_clone = app_handle.clone();
     std::thread::spawn(move || {
         std::thread::sleep(std::time::Duration::from_millis(300));
-        app_handle.exit(0);
+        app_handle_clone.exit(0);
     });
     
     Ok(())
