@@ -14,10 +14,10 @@
     <div class="container">
       <!-- タブナビゲーション -->
       <div class="nav-tabs">
-        <button class="nav-tab active" data-view="main">メイン</button>
-        <button class="nav-tab" data-view="a">ビューA</button>
-        <button class="nav-tab" data-view="b">ビューB</button>
-        <button class="nav-tab" data-view="c">ビューC</button>
+        <button class="nav-tab active focus-control-main" data-view="main">メイン</button>
+        <button class="nav-tab focus-control-a" data-view="a">ビューA</button>
+        <button class="nav-tab focus-control-b" data-view="b">ビューB</button>
+        <button class="nav-tab focus-control-c" data-view="c">ビューC</button>
       </div>
       
       <!-- コンテンツエリア -->
@@ -26,7 +26,7 @@
         <div class="view view-main active" id="view-main">
           <!-- ヘッダー情報 (アコーディオン) -->
           <details class="main-details">
-            <summary>info</summary>
+            <summary class="focus-control-main">info</summary>
             <div class="details-content">
               <h1>Queuelip</h1>
               <p>キューの動作を持つクリップボードアプリ「Queuelip-キューリップ🌷🌷」</p>
@@ -39,20 +39,20 @@
           
           <!-- 以前のボタン (互換性のため残しています) -->
           <div class="button-container">
-            <button id="buttonA" class="popup-button">A</button>
-            <button id="buttonB" class="popup-button">B</button>
-            <button id="buttonC" class="popup-button">C</button>
+            <button id="buttonA" class="popup-button focus-control-a">A</button>
+            <button id="buttonB" class="popup-button focus-control-b">B</button>
+            <button id="buttonC" class="popup-button focus-control-c">C</button>
           </div>
           
           <div id="hover-status" class="hover-status">ホバー検知: 非アクティブ</div>
           
           <!-- フッター情報 (アコーディオン) -->
           <details class="main-details">
-            <summary>version</summary>
+            <summary class="focus-control-main">version</summary>
             <div class="details-content">
               <footer class="app-footer">
-                <div id="version-info">バージョン: 0.1.107</div>
-                <div id="system-time">最終更新: 2025年05月16日 16:05:00</div>
+                <div id="version-info">バージョン: 0.1.108</div>
+                <div id="system-time">最終更新: 2025年05月16日 16:16:00</div>
               </footer>
             </div>
           </details>
