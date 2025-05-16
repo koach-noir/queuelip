@@ -50,6 +50,12 @@
   border-radius: 0 0 6px 6px;
 }
 
+/* 新規ページ */
+.view-new-page {
+  background-color: #ecfdf5;
+  border-radius: 0 0 6px 6px;
+}
+
 /* コンテンツ切り替えアニメーション */
 @keyframes fadeIn {
   from {
