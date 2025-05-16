@@ -26,7 +26,8 @@ export function switchView(viewName) {
   
   if (currentTab) {
     currentTab.classList.remove('active');
-    // data-hover属性が使われている場合のスタイル対応はMutationObserverで自動処理
+    // 非アクティブになったタブにはinactiveクラスを追加
+    currentTab.classList.add('tab-hover-inactive');
   }
   
   // 新しいビューとタブをアクティブにする
@@ -39,7 +40,13 @@ export function switchView(viewName) {
   
   if (newTab) {
     newTab.classList.add('active');
-    // data-hover属性が使われている場合のスタイル対応はMutationObserverで自動処理
+    // アクティブになったタブからはinactiveクラスを除去
+    newTab.classList.remove('tab-hover-inactive');
+    
+    // 他のタブをよりinactiveに見せる
+    document.querySelectorAll('.nav-tab:not(.active)').forEach(tab => {
+      tab.classList.add('tab-hover-inactive');
+    });
   }
   
   // ビュー切り替えアニメーションのためのクラスを追加
