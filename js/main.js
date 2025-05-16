@@ -1,5 +1,4 @@
 // 各モジュールのインポート
-import { updateSystemTime } from './time.js';
 import { setupHoverDetection } from './ui.js';
 import { setupTabButtons } from './navigation.js';
 import { setupLegacyButtons } from './legacy.js';
@@ -19,7 +18,6 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   // 各モジュールの初期化
-  updateSystemTime();
   setupHoverDetection();
   setupTabButtons();
   setupLegacyButtons();
