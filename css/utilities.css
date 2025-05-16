@@ -1,0 +1,72 @@
+/* ホバー状態のユーティリティクラス */
+
+/* アクティブ/非アクティブ状態の基本クラス */
+.hover-active {
+  opacity: 1;
+  transform: scale(1);
+  transition: all 0.3s ease;
+}
+
+.hover-inactive {
+  opacity: 0.6;
+  transform: scale(0.98);
+  transition: all 0.3s ease;
+}
+
+/* テキスト要素のアクティブ/非アクティブスタイル */
+.text-hover-active {
+  color: inherit;
+  font-weight: normal;
+  transition: all 0.3s ease;
+}
+
+.text-hover-inactive {
+  color: #888;
+  font-weight: lighter;
+  transition: all 0.3s ease;
+}
+
+/* ボタン要素のアクティブ/非アクティブスタイル */
+.btn-hover-active {
+  opacity: 1;
+  transform: translateY(0);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.btn-hover-inactive {
+  opacity: 0.7;
+  transform: translateY(1px);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+/* タブ要素のアクティブ/非アクティブスタイル */
+.tab-hover-active {
+  opacity: 1;
+  color: inherit;
+  transform: translateY(0);
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.tab-hover-inactive {
+  opacity: 0.6;
+  color: #888;
+  transform: translateY(1px);
+  font-weight: 400;
+  transition: all 0.3s ease;
+}
+
+/* コンテナ要素のアクティブ/非アクティブスタイル */
+.container-hover-active {
+  border-color: #ddd;
+  background-color: #fff;
+  transition: all 0.3s ease;
+}
+
+.container-hover-inactive {
+  border-color: #eee;
+  background-color: #f9f9f9;
+  transition: all 0.3s ease;
+}
