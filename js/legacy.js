@@ -1,5 +1,5 @@
-// navigation.jsからswitchView関数をインポート
-import { switchView } from './navigation.js';
+// navigation.jsからswitchViewとshowAViewModal関数をインポート
+import { switchView, showAViewModal } from './navigation.js';
 
 // レガシーボタンの設定
 export function setupLegacyButtons() {
@@ -10,6 +10,8 @@ export function setupLegacyButtons() {
   if (buttonA) {
     buttonA.addEventListener('click', function() {
       switchView('a');
+      // Aボタンクリック時にもモーダルを表示
+      showAViewModal();
     });
   }
   
