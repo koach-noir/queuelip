@@ -2,6 +2,7 @@
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Queuelip</title>
     <link rel="stylesheet" href="css/base.css">
     <link rel="stylesheet" href="css/components.css">
@@ -10,15 +11,6 @@
 
   <body>
     <div class="container">
-      <!-- ヘッダー情報 (アコーディオン) -->
-      <details>
-        <summary>詳細情報</summary>
-        <div class="details-content">
-          <h1>Queuelip</h1>
-          <p>キューの動作を持つクリップボードアプリ「Queuelip-キューリップ🌷🌷」</p>
-        </div>
-      </details>
-      
       <!-- タブナビゲーション -->
       <div class="nav-tabs">
         <button class="nav-tab active" data-view="main">メイン</button>
@@ -31,6 +23,15 @@
       <div class="content-area">
         <!-- メインビュー -->
         <div class="view view-main active" id="view-main">
+          <!-- ヘッダー情報 (アコーディオン) -->
+          <details class="main-details">
+            <summary>info</summary>
+            <div class="details-content">
+              <h1>Queuelip</h1>
+              <p>キューの動作を持つクリップボードアプリ「Queuelip-キューリップ🌷🌷」</p>
+            </div>
+          </details>
+          
           <h2>Hello World!</h2>
           <p>これはTauri + Rustで開発されたシンプルなアプリケーションです。</p>
           <p>上部のタブ、または以下のボタンをクリックして、各ビューに切り替えることができます。</p>
@@ -43,6 +44,17 @@
           </div>
           
           <div id="hover-status" class="hover-status">ホバー検知: 非アクティブ</div>
+          
+          <!-- フッター情報 (アコーディオン) -->
+          <details class="main-details">
+            <summary>version</summary>
+            <div class="details-content">
+              <footer class="app-footer">
+                <div id="version-info">バージョン: 0.1.102</div>
+                <div id="system-time">最終更新: 2025年05月16日 17:27:30</div>
+              </footer>
+            </div>
+          </details>
         </div>
         
         <!-- ビューA -->
@@ -72,17 +84,6 @@
           </div>
         </div>
       </div>
-      
-      <!-- フッター情報 (アコーディオン) -->
-      <details>
-        <summary>バージョン情報</summary>
-        <div class="details-content">
-          <footer class="app-footer">
-            <div id="version-info">バージョン: 0.1.102</div>
-            <div id="system-time">最終更新: 2025年05月16日 17:27:30</div>
-          </footer>
-        </div>
-      </details>
     </div>
 
     <!-- JavaScriptモジュールをインポート -->

@@ -139,6 +139,10 @@ details {
   overflow: hidden;
 }
 
+.main-details {
+  margin-bottom: 20px;
+}
+
 summary {
   padding: 10px 15px;
   background-color: #f5f5f5;
@@ -173,4 +177,22 @@ details[open] summary::after {
 .details-content {
   padding: 15px;
   background-color: #f0f2ff;
+}
+
+/* メディアクエリの追加 */
+@media (max-width: 767px) {
+  .nav-tab {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.9rem;
+  }
+  
+  .button-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .popup-button {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
 }
