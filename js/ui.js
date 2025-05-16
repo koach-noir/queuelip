@@ -16,102 +16,94 @@ export function setupHoverDetection() {
     });
   }
   
-  // タブのホバー検知と拡張スタイル適用
-  setupTabHoverStyles();
-  
-  // その他のボタン要素に対するホバー検知と拡張スタイル適用
-  setupButtonHoverStyles();
-  
-  // アコーディオン要素に対するホバー検知と拡張スタイル適用
-  setupAccordionHoverStyles();
+  // データ属性ベースのホバーエフェクト設定
+  setupDataAttributeHoverEffects();
 }
 
-// タブのホバースタイルを設定
-function setupTabHoverStyles() {
-  const tabs = document.querySelectorAll('.nav-tab');
+// データ属性を使ったホバー効果の設定
+function setupDataAttributeHoverEffects() {
+  // data-hover属性を持つすべての要素を取得
+  const hoverElements = document.querySelectorAll('[data-hover="active"]');
   
-  tabs.forEach(tab => {
-    // 非アクティブタブのデフォルトスタイルを適用
-    if (!tab.classList.contains('active')) {
-      tab.classList.add('tab-hover-inactive');
+  // ホバー要素ごとのグループを管理するマップ
+  const hoverGroups = {};
+  
+  // ホバー効果を持つ要素をグループに分類
+  hoverElements.forEach(element => {
+    const hoverType = element.getAttribute('data-hover-type') || 'default';
+    const hoverGroup = element.getAttribute('data-hover-group') || 'default';
+    
+    // グループが未定義の場合は初期化
+    if (!hoverGroups[hoverGroup]) {
+      hoverGroups[hoverGroup] = [];
     }
     
-    // ホバー時のイベント処理
-    tab.addEventListener('mouseenter', function() {
-      // アクティブでないタブの場合は、ホバー時にアクティブに近いスタイルを表示
-      if (!this.classList.contains('active')) {
-        this.classList.remove('tab-hover-inactive');
-        this.classList.add('tab-hover-active');
+    // 要素をグループに追加
+    hoverGroups[hoverGroup].push({
+      element: element,
+      type: hoverType
+    });
+    
+    // 初期状態では非アクティブスタイルを適用（アクティブな要素を除く）
+    if (!element.classList.contains('active')) {
+      const inactiveClass = `${hoverType}-hover-inactive`;
+      if (!element.classList.contains(inactiveClass)) {
+        element.classList.add(inactiveClass);
       }
+    }
+    
+    // ホバーイベントの設定
+    element.addEventListener('mouseenter', function() {
+      const type = this.getAttribute('data-hover-type') || 'default';
+      const group = this.getAttribute('data-hover-group') || 'default';
       
-      // 他のタブをさらに目立たなくする
-      tabs.forEach(otherTab => {
-        if (otherTab !== this && !otherTab.classList.contains('active')) {
-          otherTab.classList.remove('tab-hover-active');
-          otherTab.classList.add('tab-hover-inactive');
-        }
-      });
+      // 自身のホバースタイル切り替え
+      this.classList.remove(`${type}-hover-inactive`);
+      this.classList.add(`${type}-hover-active`);
+      
+      // 同じグループの他の要素をより非アクティブに
+      if (hoverGroups[group]) {
+        hoverGroups[group].forEach(item => {
+          if (item.element !== this && !item.element.classList.contains('active')) {
+            item.element.classList.remove(`${item.type}-hover-active`);
+            item.element.classList.add(`${item.type}-hover-inactive`);
+          }
+        });
+      }
     });
     
     // マウスが離れた時のイベント処理
-    tab.addEventListener('mouseleave', function() {
-      // アクティブでないタブの場合は、通常の非アクティブスタイルに戻す
+    element.addEventListener('mouseleave', function() {
+      // アクティブでない場合のみスタイルを戻す
       if (!this.classList.contains('active')) {
-        this.classList.remove('tab-hover-active');
-        this.classList.add('tab-hover-inactive');
+        const type = this.getAttribute('data-hover-type') || 'default';
+        this.classList.remove(`${type}-hover-active`);
+        this.classList.add(`${type}-hover-inactive`);
       }
     });
   });
-}
-
-// ボタン要素のホバースタイルを設定
-function setupButtonHoverStyles() {
-  const buttons = document.querySelectorAll('.popup-button');
   
-  buttons.forEach(button => {
-    // 非ホバー時のデフォルトスタイル
-    button.classList.add('btn-hover-inactive');
-    
-    // ホバー時のイベント処理
-    button.addEventListener('mouseenter', function() {
-      this.classList.remove('btn-hover-inactive');
-      this.classList.add('btn-hover-active');
-      
-      // 他のボタンをさらに目立たなくする
-      buttons.forEach(otherButton => {
-        if (otherButton !== this) {
-          otherButton.classList.remove('btn-hover-active');
-          otherButton.classList.add('btn-hover-inactive');
+  // アクティブ状態の変化を監視するMutationObserverの設定
+  const observer = new MutationObserver(mutations => {
+    mutations.forEach(mutation => {
+      if (mutation.attributeName === 'class') {
+        const element = mutation.target;
+        const type = element.getAttribute('data-hover-type') || 'default';
+        
+        // activeクラスが追加された場合
+        if (element.classList.contains('active')) {
+          element.classList.remove(`${type}-hover-inactive`);
+        } 
+        // activeクラスが削除された場合
+        else if (!element.classList.contains(`${type}-hover-active`)) {
+          element.classList.add(`${type}-hover-inactive`);
         }
-      });
-    });
-    
-    // マウスが離れた時のイベント処理
-    button.addEventListener('mouseleave', function() {
-      this.classList.remove('btn-hover-active');
-      this.classList.add('btn-hover-inactive');
+      }
     });
   });
-}
-
-// アコーディオン要素のホバースタイルを設定
-function setupAccordionHoverStyles() {
-  const summaries = document.querySelectorAll('summary');
   
-  summaries.forEach(summary => {
-    // 非ホバー時のデフォルトスタイル
-    summary.classList.add('hover-inactive');
-    
-    // ホバー時のイベント処理
-    summary.addEventListener('mouseenter', function() {
-      this.classList.remove('hover-inactive');
-      this.classList.add('hover-active');
-    });
-    
-    // マウスが離れた時のイベント処理
-    summary.addEventListener('mouseleave', function() {
-      this.classList.remove('hover-active');
-      this.classList.add('hover-inactive');
-    });
+  // 全てのホバー要素にオブザーバーを設定
+  hoverElements.forEach(element => {
+    observer.observe(element, { attributes: true });
   });
 }
