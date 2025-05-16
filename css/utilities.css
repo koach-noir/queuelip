@@ -70,3 +70,34 @@
   background-color: #f9f9f9;
   transition: all 0.3s ease;
 }
+
+/* フォーカス制御のユーティリティクラス */
+.focus-control:focus {
+  outline: 2px solid #16a34a;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.2);
+}
+
+.focus-control-main:focus {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
+}
+
+.focus-control-a:focus {
+  outline: 2px solid #9333ea;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(147, 51, 234, 0.2);
+}
+
+.focus-control-b:focus {
+  outline: 2px solid #db2777;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(219, 39, 119, 0.2);
+}
+
+.focus-control-c:focus {
+  outline: 2px solid #16a34a;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.2);
+}
