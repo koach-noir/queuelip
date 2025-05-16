@@ -2,7 +2,7 @@ name: Release Build
 
 on:
   push:
-    branches: [ main ]
+    # すべてのブランチを対象に
     paths-ignore:
       - '**.md'
       - '.github/**'
