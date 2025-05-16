@@ -1,117 +1,83 @@
-// ホバー検知機能を設定
-export function setupHoverDetection() {
-  const mainView = document.getElementById('view-main');
-  const hoverStatus = document.getElementById('hover-status');
+// ui.js - UIイベントとインタラクションの処理
+
+/**
+ * UIイベントとインタラクションを初期化する
+ */
+export function initUI() {
+  // ホバー状態の表示
+  initHoverStatus();
   
-  // 基本的なホバー検知（ステータス表示用）
-  if (mainView && hoverStatus) {
-    mainView.addEventListener('mouseenter', function() {
-      hoverStatus.textContent = 'ホバー検知: アクティブ';
+  // フォーカス制御の初期化
+  initFocusControl();
+}
+
+/**
+ * ホバー状態の検知と表示を初期化する
+ */
+function initHoverStatus() {
+  const hoverStatus = document.getElementById('hover-status');
+  const popupButtons = document.querySelectorAll('.popup-button');
+  
+  if (!hoverStatus) return;
+  
+  // ボタンにホバーイベントを追加
+  popupButtons.forEach(button => {
+    button.addEventListener('mouseenter', () => {
+      hoverStatus.textContent = `ホバー検知: ${button.textContent}ボタン上`;
       hoverStatus.classList.add('active');
     });
     
-    mainView.addEventListener('mouseleave', function() {
+    button.addEventListener('mouseleave', () => {
       hoverStatus.textContent = 'ホバー検知: 非アクティブ';
       hoverStatus.classList.remove('active');
     });
+  });
+}
+
+/**
+ * フォーカス制御を初期化する
+ */
+function initFocusControl() {
+  const focusControlMain = document.querySelector('.focus-control-main');
+  
+  if (focusControlMain) {
+    // フォーカスイベントの処理
+    focusControlMain.addEventListener('focus', () => {
+      console.log('メインページのフォーカス制御要素にフォーカスが当たりました');
+    });
+    
+    focusControlMain.addEventListener('blur', () => {
+      console.log('メインページのフォーカス制御要素からフォーカスが外れました');
+    });
+    
+    // キーボードイベントの処理
+    focusControlMain.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        // Enter または Space キーでアコーディオンを開閉
+        const details = focusControlMain.closest('details');
+        if (details) {
+          details.open = !details.open;
+          event.preventDefault();
+        }
+      }
+    });
   }
   
-  // タブのホバー検知と拡張スタイル適用
-  setupTabHoverStyles();
-  
-  // その他のボタン要素に対するホバー検知と拡張スタイル適用
-  setupButtonHoverStyles();
-  
-  // アコーディオン要素に対するホバー検知と拡張スタイル適用
-  setupAccordionHoverStyles();
-}
-
-// タブのホバースタイルを設定
-function setupTabHoverStyles() {
-  const tabs = document.querySelectorAll('.nav-tab');
-  
-  tabs.forEach(tab => {
-    // 非アクティブタブのデフォルトスタイルを適用
-    if (!tab.classList.contains('active')) {
-      tab.classList.add('tab-hover-inactive');
+  // アコーディオン要素のアクセシビリティ強化
+  const allSummaries = document.querySelectorAll('summary');
+  allSummaries.forEach(summary => {
+    // 適切なARIAロールと属性を設定
+    summary.setAttribute('role', 'button');
+    summary.setAttribute('aria-expanded', summary.parentElement.open ? 'true' : 'false');
+    
+    // 開閉状態が変わったときにaria-expandedを更新
+    summary.parentElement.addEventListener('toggle', () => {
+      summary.setAttribute('aria-expanded', summary.parentElement.open ? 'true' : 'false');
+    });
+    
+    // タブインデックスを設定して、キーボードでフォーカス可能にする
+    if (!summary.hasAttribute('tabindex')) {
+      summary.setAttribute('tabindex', '0');
     }
-    
-    // ホバー時のイベント処理
-    tab.addEventListener('mouseenter', function() {
-      // アクティブでないタブの場合は、ホバー時にアクティブに近いスタイルを表示
-      if (!this.classList.contains('active')) {
-        this.classList.remove('tab-hover-inactive');
-        this.classList.add('tab-hover-active');
-      }
-      
-      // 他のタブをさらに目立たなくする
-      tabs.forEach(otherTab => {
-        if (otherTab !== this && !otherTab.classList.contains('active')) {
-          otherTab.classList.remove('tab-hover-active');
-          otherTab.classList.add('tab-hover-inactive');
-        }
-      });
-    });
-    
-    // マウスが離れた時のイベント処理
-    tab.addEventListener('mouseleave', function() {
-      // アクティブでないタブの場合は、通常の非アクティブスタイルに戻す
-      if (!this.classList.contains('active')) {
-        this.classList.remove('tab-hover-active');
-        this.classList.add('tab-hover-inactive');
-      }
-    });
-  });
-}
-
-// ボタン要素のホバースタイルを設定
-function setupButtonHoverStyles() {
-  const buttons = document.querySelectorAll('.popup-button');
-  
-  buttons.forEach(button => {
-    // 非ホバー時のデフォルトスタイル
-    button.classList.add('btn-hover-inactive');
-    
-    // ホバー時のイベント処理
-    button.addEventListener('mouseenter', function() {
-      this.classList.remove('btn-hover-inactive');
-      this.classList.add('btn-hover-active');
-      
-      // 他のボタンをさらに目立たなくする
-      buttons.forEach(otherButton => {
-        if (otherButton !== this) {
-          otherButton.classList.remove('btn-hover-active');
-          otherButton.classList.add('btn-hover-inactive');
-        }
-      });
-    });
-    
-    // マウスが離れた時のイベント処理
-    button.addEventListener('mouseleave', function() {
-      this.classList.remove('btn-hover-active');
-      this.classList.add('btn-hover-inactive');
-    });
-  });
-}
-
-// アコーディオン要素のホバースタイルを設定
-function setupAccordionHoverStyles() {
-  const summaries = document.querySelectorAll('summary');
-  
-  summaries.forEach(summary => {
-    // 非ホバー時のデフォルトスタイル
-    summary.classList.add('hover-inactive');
-    
-    // ホバー時のイベント処理
-    summary.addEventListener('mouseenter', function() {
-      this.classList.remove('hover-inactive');
-      this.classList.add('hover-active');
-    });
-    
-    // マウスが離れた時のイベント処理
-    summary.addEventListener('mouseleave', function() {
-      this.classList.remove('hover-active');
-      this.classList.add('hover-inactive');
-    });
   });
 }

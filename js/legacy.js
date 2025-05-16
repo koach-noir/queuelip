@@ -1,33 +1,32 @@
-// navigation.jsからswitchViewとshowViewModal関数をインポート
-import { switchView, showViewModal } from './navigation.js';
+// legacy.js - 古いボタンの互換性維持のためのコード
 
-// レガシーボタンの設定
-export function setupLegacyButtons() {
+/**
+ * 以前のバージョンで使用されていたボタンの機能を初期化
+ * 現在はタブ式UIに移行していますが、互換性のために残しています
+ */
+export function initLegacyButtons() {
   const buttonA = document.getElementById('buttonA');
   const buttonB = document.getElementById('buttonB');
   const buttonC = document.getElementById('buttonC');
   
+  // 各ボタンにクリックイベントを追加
+  // クリック時に対応するタブを表示する
+  
   if (buttonA) {
-    buttonA.addEventListener('click', function() {
-      switchView('a');
-      // Aボタンクリック時にもモーダルを表示
-      showViewModal('a');
+    buttonA.addEventListener('click', () => {
+      window.showView('a');
     });
   }
   
   if (buttonB) {
-    buttonB.addEventListener('click', function() {
-      switchView('b');
-      // Bボタンクリック時にもモーダルを表示
-      showViewModal('b');
+    buttonB.addEventListener('click', () => {
+      window.showView('b');
     });
   }
   
   if (buttonC) {
-    buttonC.addEventListener('click', function() {
-      switchView('c');
-      // Cボタンクリック時にもモーダルを表示
-      showViewModal('c');
+    buttonC.addEventListener('click', () => {
+      window.showView('c');
     });
   }
 }

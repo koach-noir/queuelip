@@ -1,24 +1,25 @@
-// 各モジュールのインポート
-import { setupHoverDetection } from './ui.js';
-import { setupTabButtons } from './navigation.js';
-import { setupLegacyButtons } from './legacy.js';
-import { initVersionInfo, APP_VERSION, LAST_UPDATE } from './version.js';
+// メインJSモジュール - アプリケーションのエントリーポイント
 
-// Tauriアプリケーション初期化
-document.addEventListener('DOMContentLoaded', function() {
-  console.log('Queuelip application initialized');
+// 必要なモジュールをインポート
+import { initVersionInfo } from './version.js';
+import { initNavigation } from './navigation.js';
+import { initUI } from './ui.js';
+import { initLegacyButtons } from './legacy.js';
+
+// DOMが完全にロードされたら実行する関数
+document.addEventListener('DOMContentLoaded', () => {
+  // フッターにバージョン情報を表示
+  initVersionInfo();
   
-  // フッター情報を直接挿入
-  const appFooter = document.getElementById('app-footer');
-  if (appFooter) {
-    appFooter.innerHTML = `
-      <div id="version-info">バージョン: ${APP_VERSION}</div>
-      <div id="system-time">最終更新: ${LAST_UPDATE}</div>
-    `;
-  }
+  // ナビゲーション（タブ）を初期化
+  initNavigation();
   
-  // 各モジュールの初期化
-  setupHoverDetection();
-  setupTabButtons();
-  setupLegacyButtons();
+  // UIイベントとインタラクションを初期化
+  initUI();
+  
+  // 旧式のボタンを初期化（互換性のため）
+  initLegacyButtons();
+  
+  // 開発者へのメッセージ
+  console.log('Queuelip アプリケーションが初期化されました。');
 });
