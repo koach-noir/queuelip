@@ -3,6 +3,7 @@ import { setupHoverDetection } from './ui.js';
 import { setupTabButtons } from './navigation.js';
 import { setupLegacyButtons } from './legacy.js';
 import { initVersionInfo, APP_VERSION, LAST_UPDATE } from './version.js';
+import { setupPopButtons } from './popbuttons.js';
 
 // Tauriアプリケーション初期化
 document.addEventListener('DOMContentLoaded', function() {
@@ -21,4 +22,5 @@ document.addEventListener('DOMContentLoaded', function() {
   setupHoverDetection();
   setupTabButtons();
   setupLegacyButtons();
+  setupPopButtons(); // POPボタン機能の初期化
 });
