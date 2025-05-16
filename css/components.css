@@ -1,111 +1,82 @@
-/* ナビゲーションタブのスタイル */
+/* components.css - UIコンポーネントのスタイル */
+
+/* ナビゲーションタブ */
 .nav-tabs {
   display: flex;
-  margin-bottom: 1.5rem;
   border-bottom: 1px solid #dee2e6;
-  background-color: #fff;
-  border-radius: 6px 6px 0 0;
-  overflow: hidden;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1rem;
 }
 
 .nav-tab {
-  padding: 0.8rem 1.5rem;
-  cursor: pointer;
-  border: none;
+  padding: 0.5rem 1rem;
+  border: 1px solid transparent;
+  border-top-left-radius: 0.25rem;
+  border-top-right-radius: 0.25rem;
+  margin-bottom: -1px;
   background-color: transparent;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: #495057;
-  transition: all 0.3s ease;
-  position: relative;
-  flex: 1;
-  text-align: center;
+  transition: all 0.2s ease-in-out;
 }
 
 .nav-tab:hover {
+  border-color: #e9ecef #e9ecef #dee2e6;
   background-color: #f8f9fa;
-  color: #212529;
-  transform: translateY(-2px);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
 }
 
 .nav-tab.active {
-  color: #16a34a;
-  background-color: #f0fdf4;
-  font-weight: 600;
-  transform: translateY(0);
+  color: #495057;
+  background-color: #fff;
+  border-color: #dee2e6 #dee2e6 #fff;
 }
 
-.nav-tab.active::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 3px;
-  background-color: #16a34a;
+/* ビュー */
+.view {
+  display: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  padding: 1rem;
+  background-color: #fff;
+  border-radius: 0.25rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
 }
 
-.nav-tab:first-child.active {
-  color: #2563eb;
-  background-color: #eff6ff;
+.view.active {
+  display: block;
 }
 
-.nav-tab:first-child.active::after {
-  background-color: #2563eb;
+/* ビューごとのスタイル */
+.view-main {
+  border-left: 4px solid #28a745;
 }
 
-.nav-tab:nth-child(2).active {
-  color: #9333ea;
-  background-color: #f5f3ff;
+.view-a {
+  border-left: 4px solid #2563eb;
 }
 
-.nav-tab:nth-child(2).active::after {
-  background-color: #9333ea;
+.view-b {
+  border-left: 4px solid #9333ea;
 }
 
-.nav-tab:nth-child(3).active {
-  color: #db2777;
-  background-color: #fdf2f8;
+.view-c {
+  border-left: 4px solid #db2777;
 }
 
-.nav-tab:nth-child(3).active::after {
-  background-color: #db2777;
-}
-
-/* 非アクティブ状態のタブ（ホバーでない場合） */
-.nav-tab:not(:hover):not(.active) {
-  opacity: 0.7;
-  transform: translateY(1px);
-}
-
-/* レガシーボタン (変換用) */
+/* ボタン */
 .button-container {
   display: flex;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  gap: 0.5rem;
+  margin: 1rem 0;
 }
 
 .popup-button {
-  padding: 0.6rem 1.2rem;
-  background-color: #4CAF50;
-  color: white;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
   border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.popup-button:hover {
-  background-color: #45a049;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.popup-button:not(:hover) {
-  opacity: 0.9;
-  transform: translateY(0);
+  border-radius: 0.25rem;
+  color: white;
+  transition: all 0.2s ease;
+  min-width: 40px;
 }
 
 #buttonA {
@@ -113,7 +84,7 @@
 }
 
 #buttonA:hover {
-  background-color: #1e40af;
+  background-color: #1d4ed8;
 }
 
 #buttonB {
@@ -132,228 +103,70 @@
   background-color: #be185d;
 }
 
-/* 新規ページボタン */
-.primary-button {
-  padding: 0.6rem 1.2rem;
-  background-color: #059669;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: 500;
-}
-
-.primary-button:hover {
-  background-color: #047857;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.secondary-button {
-  padding: 0.6rem 1.2rem;
-  background-color: #6b7280;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: 500;
-}
-
-.secondary-button:hover {
-  background-color: #4b5563;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* ホバー状態表示のスタイル */
+/* ホバー状態表示 */
 .hover-status {
   margin-top: 1rem;
   padding: 0.5rem;
+  border-radius: 0.25rem;
   background-color: #f8f9fa;
-  border-radius: 4px;
-  border-left: 3px solid #ddd;
-  transition: all 0.3s ease;
-}
-
-.hover-status.active {
-  background-color: #e2f2ff;
-  border-left: 3px solid #007bff;
-}
-
-/* アコーディオン */
-details {
-  margin-bottom: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.main-details {
-  margin-bottom: 20px;
-}
-
-summary {
-  padding: 10px 15px;
-  background-color: #f5f5f5;
-  cursor: pointer;
-  font-weight: bold;
-  position: relative;
-  transition: all 0.3s ease;
-}
-
-summary:hover {
-  background-color: #eaeaea;
-  color: #000;
-}
-
-summary:not(:hover) {
-  opacity: 0.9;
-  color: #444;
-}
-
-summary::marker {
-  display: none;
-}
-
-summary::-webkit-details-marker {
-  display: none;
-}
-
-summary::after {
-  content: "▼";
-  position: absolute;
-  right: 15px;
-  transition: transform 0.3s;
-}
-
-details[open] summary::after {
-  transform: rotate(180deg);
-}
-
-.details-content {
-  padding: 15px;
-  background-color: #f0f2ff;
-}
-
-/* モーダルダイアログ共通スタイル */
-.modal-dialog {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(255, 255, 255, 0.98);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease;
-}
-
-.modal-dialog.active {
-  opacity: 1;
-  visibility: visible;
-}
-
-.modal-header {
-  position: relative;
-  width: 100%;
-  padding: 1rem;
-  text-align: center;
-  border-bottom: 1px solid #d1d5db;
-}
-
-.modal-content {
-  padding: 2rem;
-  overflow-y: auto;
-  flex: 1;
-  width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.modal-close {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: transparent;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
+  border: 1px solid #dee2e6;
+  font-size: 0.875rem;
+  color: #6c757d;
   transition: all 0.2s ease;
 }
 
-/* ビューA用モーダルスタイル */
-.modal-a .modal-header {
-  background-color: #eff6ff;
+.hover-status.active {
+  background-color: #e9ecef;
+  color: #495057;
+  border-color: #ced4da;
 }
 
-.modal-a .modal-close {
-  color: #2563eb;
+/* アコーディオン */
+.main-details {
+  margin-bottom: 1rem;
+  border-radius: 0.25rem;
+  overflow: hidden;
 }
 
-.modal-a .modal-close:hover {
-  background-color: rgba(37, 99, 235, 0.1);
-  transform: scale(1.1);
+.main-details summary {
+  padding: 0.5rem;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  list-style: none;
+  position: relative;
+  font-weight: 500;
+  transition: all 0.2s ease;
 }
 
-/* ビューB用モーダルスタイル */
-.modal-b .modal-header {
-  background-color: #f5f3ff;
+.main-details summary:hover {
+  background-color: #e9ecef;
 }
 
-.modal-b .modal-close {
-  color: #9333ea;
+.main-details summary:focus {
+  outline: none;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }
 
-.modal-b .modal-close:hover {
-  background-color: rgba(147, 51, 234, 0.1);
-  transform: scale(1.1);
+.main-details summary::after {
+  content: '\25BC';
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.75rem;
+  transition: transform 0.2s ease;
 }
 
-/* ビューC用モーダルスタイル */
-.modal-c .modal-header {
-  background-color: #fdf2f8;
+.main-details[open] summary::after {
+  transform: translateY(-50%) rotate(180deg);
 }
 
-.modal-c .modal-close {
-  color: #db2777;
-}
-
-.modal-c .modal-close:hover {
-  background-color: rgba(219, 39, 119, 0.1);
-  transform: scale(1.1);
-}
-
-/* メディアクエリの追加 */
-@media (max-width: 767px) {
-  .nav-tab {
-    padding: 0.6rem 0.8rem;
-    font-size: 0.8rem;
-  }
-  
-  .button-container {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .popup-button {
-    width: 100%;
-    margin-bottom: 0.5rem;
-  }
-  
-  .modal-content {
-    padding: 1rem;
-  }
+.details-content {
+  padding: 1rem;
+  border: 1px solid #dee2e6;
+  border-top: none;
+  border-radius: 0 0 0.25rem 0.25rem;
+  background-color: white;
 }

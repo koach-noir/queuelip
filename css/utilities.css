@@ -1,72 +1,124 @@
-/* ホバー状態のユーティリティクラス */
+/* utilities.css - 汎用的なユーティリティクラス */
 
-/* アクティブ/非アクティブ状態の基本クラス */
-.hover-active {
-  opacity: 1;
-  transform: scale(1);
-  transition: all 0.3s ease;
+/* テキストの配置 */
+.text-center {
+  text-align: center;
 }
 
-.hover-inactive {
-  opacity: 0.6;
-  transform: scale(0.98);
-  transition: all 0.3s ease;
+.text-left {
+  text-align: left;
 }
 
-/* テキスト要素のアクティブ/非アクティブスタイル */
-.text-hover-active {
-  color: inherit;
-  font-weight: normal;
-  transition: all 0.3s ease;
+.text-right {
+  text-align: right;
 }
 
-.text-hover-inactive {
-  color: #888;
-  font-weight: lighter;
-  transition: all 0.3s ease;
+/* テキストサイズ */
+.text-xs {
+  font-size: 0.75rem;
 }
 
-/* ボタン要素のアクティブ/非アクティブスタイル */
-.btn-hover-active {
-  opacity: 1;
-  transform: translateY(0);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+.text-sm {
+  font-size: 0.875rem;
 }
 
-.btn-hover-inactive {
-  opacity: 0.7;
-  transform: translateY(1px);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
+.text-base {
+  font-size: 1rem;
 }
 
-/* タブ要素のアクティブ/非アクティブスタイル */
-.tab-hover-active {
-  opacity: 1;
-  color: inherit;
-  transform: translateY(0);
-  font-weight: 500;
-  transition: all 0.3s ease;
+.text-lg {
+  font-size: 1.125rem;
 }
 
-.tab-hover-inactive {
-  opacity: 0.6;
-  color: #888;
-  transform: translateY(1px);
+.text-xl {
+  font-size: 1.25rem;
+}
+
+.text-2xl {
+  font-size: 1.5rem;
+}
+
+/* フォントウェイト */
+.font-normal {
   font-weight: 400;
-  transition: all 0.3s ease;
 }
 
-/* コンテナ要素のアクティブ/非アクティブスタイル */
-.container-hover-active {
-  border-color: #ddd;
-  background-color: #fff;
-  transition: all 0.3s ease;
+.font-medium {
+  font-weight: 500;
 }
 
-.container-hover-inactive {
-  border-color: #eee;
-  background-color: #f9f9f9;
-  transition: all 0.3s ease;
+.font-semibold {
+  font-weight: 600;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+/* 色 */
+.text-gray-400 {
+  color: #9ca3af;
+}
+
+.text-gray-500 {
+  color: #6b7280;
+}
+
+.text-gray-600 {
+  color: #4b5563;
+}
+
+.text-gray-700 {
+  color: #374151;
+}
+
+.bg-white {
+  background-color: #ffffff;
+}
+
+.bg-gray-100 {
+  background-color: #f3f4f6;
+}
+
+.bg-gray-200 {
+  background-color: #e5e7eb;
+}
+
+/* ボーダー */
+.border {
+  border-width: 1px;
+  border-style: solid;
+}
+
+.border-gray-200 {
+  border-color: #e5e7eb;
+}
+
+.border-gray-300 {
+  border-color: #d1d5db;
+}
+
+.rounded {
+  border-radius: 0.25rem;
+}
+
+.rounded-md {
+  border-radius: 0.375rem;
+}
+
+.rounded-lg {
+  border-radius: 0.5rem;
+}
+
+/* シャドウ */
+.shadow-sm {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.shadow {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.shadow-md {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
