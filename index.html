@@ -2,10 +2,12 @@
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
-    <link rel="stylesheet" href="/style.css" />
-    <link rel="stylesheet" href="/accordion.css" />
+    <link rel="stylesheet" href="./style.css" />
+    <link rel="stylesheet" href="./accordion.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Queuelip</title>
+    <!-- AccordionManagerを先に読み込む -->
+    <script src="./accordion-manager.js"></script>
   </head>
 
   <body>
@@ -70,7 +72,8 @@
       <!-- アコーディオンエリア - フッター情報 -->
       <div id="footer-accordion"></div>
     </div>
-    <script src="/accordion-manager.js"></script>
-    <script type="module" src="/main.js"></script>
+    
+    <!-- main.js は最後に読み込む -->
+    <script type="module" src="./main.js"></script>
   </body>
 </html>
