@@ -2,18 +2,339 @@
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
-    <link rel="stylesheet" href="./style.css" />
-    <link rel="stylesheet" href="./accordion.css" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Queuelip</title>
-    <!-- AccordionManagerを先に読み込む -->
-    <script src="./accordion-manager.js"></script>
+    <style>
+      /* 基本スタイル */
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+          Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        background-color: #f5f5f5;
+        color: #333;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+        padding-top: 1rem;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+        color: #2c3e50;
+      }
+
+      h2 {
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+        color: #34495e;
+      }
+
+      p {
+        line-height: 1.6;
+        margin-bottom: 1rem;
+      }
+
+      /* ホバー状態表示のスタイル */
+      .hover-status {
+        margin-top: 1rem;
+        padding: 0.5rem;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+        border-left: 3px solid #ddd;
+        transition: all 0.3s ease;
+      }
+
+      .hover-status.active {
+        background-color: #e2f2ff;
+        border-left: 3px solid #007bff;
+      }
+
+      /* ナビゲーションタブのスタイル */
+      .nav-tabs {
+        display: flex;
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid #dee2e6;
+        background-color: #fff;
+        border-radius: 6px 6px 0 0;
+        overflow: hidden;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+      }
+
+      .nav-tab {
+        padding: 0.8rem 1.5rem;
+        cursor: pointer;
+        border: none;
+        background-color: transparent;
+        font-size: 1rem;
+        font-weight: 500;
+        color: #495057;
+        transition: all 0.2s ease;
+        position: relative;
+        flex: 1;
+        text-align: center;
+      }
+
+      .nav-tab:hover {
+        background-color: #f8f9fa;
+        color: #212529;
+      }
+
+      .nav-tab.active {
+        color: #16a34a;
+        background-color: #f0fdf4;
+        font-weight: 600;
+      }
+
+      .nav-tab.active::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background-color: #16a34a;
+      }
+
+      .nav-tab:first-child.active {
+        color: #2563eb;
+        background-color: #eff6ff;
+      }
+
+      .nav-tab:first-child.active::after {
+        background-color: #2563eb;
+      }
+
+      .nav-tab:nth-child(2).active {
+        color: #9333ea;
+        background-color: #f5f3ff;
+      }
+
+      .nav-tab:nth-child(2).active::after {
+        background-color: #9333ea;
+      }
+
+      .nav-tab:nth-child(3).active {
+        color: #db2777;
+        background-color: #fdf2f8;
+      }
+
+      .nav-tab:nth-child(3).active::after {
+        background-color: #db2777;
+      }
+
+      /* コンテンツ表示エリア */
+      .content-area {
+        background-color: #fff;
+        border-radius: 0 0 6px 6px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        position: relative;
+        min-height: 300px; /* コンテンツ最小高さ */
+      }
+
+      /* コンテンツビュー */
+      .view {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        padding: 1.5rem;
+        box-sizing: border-box;
+        opacity: 0;
+        transform: translateY(10px);
+        pointer-events: none;
+        transition: all 0.3s ease;
+      }
+
+      .view.active {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+
+      /* ビューA */
+      .view-a {
+        background-color: #eff6ff;
+        border-radius: 0 0 6px 6px;
+      }
+
+      /* ビューB */
+      .view-b {
+        background-color: #f5f3ff;
+        border-radius: 0 0 6px 6px;
+      }
+
+      /* ビューC */
+      .view-c {
+        background-color: #fdf2f8;
+        border-radius: 0 0 6px 6px;
+      }
+
+      /* フッター */
+      .app-footer {
+        padding-top: 0.5rem;
+        font-size: 0.8rem;
+        color: #6c757d;
+      }
+
+      /* レガシーボタン (変換用) */
+      .button-container {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .popup-button {
+        padding: 0.6rem 1.2rem;
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      .popup-button:hover {
+        background-color: #45a049;
+      }
+
+      #buttonA {
+        background-color: #2563eb;
+      }
+
+      #buttonA:hover {
+        background-color: #1e40af;
+      }
+
+      #buttonB {
+        background-color: #9333ea;
+      }
+
+      #buttonB:hover {
+        background-color: #7e22ce;
+      }
+
+      #buttonC {
+        background-color: #db2777;
+      }
+
+      #buttonC:hover {
+        background-color: #be185d;
+      }
+
+      /* コンテンツ切り替えアニメーション */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeOut {
+        from {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        to {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+      }
+
+      .fade-in {
+        animation: fadeIn 0.3s ease-in-out forwards;
+      }
+
+      .fade-out {
+        animation: fadeOut 0.3s ease-in-out forwards;
+      }
+
+      /* ユーティリティクラス */
+      .hidden {
+        display: none !important;
+      }
+
+      .mb-4 {
+        margin-bottom: 1rem;
+      }
+
+      .text-center {
+        text-align: center;
+      }
+
+      .text-lg {
+        font-size: 1.2rem;
+      }
+
+      .font-bold {
+        font-weight: 600;
+      }
+
+      /* アコーディオン */
+      details {
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      summary {
+        padding: 10px 15px;
+        background-color: #f5f5f5;
+        cursor: pointer;
+        font-weight: bold;
+        position: relative;
+      }
+
+      summary:hover {
+        background-color: #eaeaea;
+      }
+
+      summary::marker {
+        display: none;
+      }
+
+      summary::-webkit-details-marker {
+        display: none;
+      }
+
+      summary::after {
+        content: "▼";
+        position: absolute;
+        right: 15px;
+        transition: transform 0.3s;
+      }
+
+      details[open] summary::after {
+        transform: rotate(180deg);
+      }
+
+      .details-content {
+        padding: 15px;
+        background-color: #f0f2ff;
+      }
+    </style>
   </head>
 
   <body>
     <div class="container">
-      <!-- アコーディオンエリア - ヘッダー情報 -->
-      <div id="header-accordion"></div>
+      <!-- ヘッダー情報 (アコーディオン) -->
+      <details>
+        <summary>詳細情報</summary>
+        <div class="details-content">
+          <h1>Queuelip</h1>
+          <p>キューの動作を持つクリップボードアプリ「Queuelip-キューリップ🌷🌷」</p>
+        </div>
+      </details>
       
       <!-- タブナビゲーション -->
       <div class="nav-tabs">
@@ -69,11 +390,135 @@
         </div>
       </div>
       
-      <!-- アコーディオンエリア - フッター情報 -->
-      <div id="footer-accordion"></div>
+      <!-- フッター情報 (アコーディオン) -->
+      <details>
+        <summary>バージョン情報</summary>
+        <div class="details-content">
+          <footer class="app-footer">
+            <div id="version-info">バージョン: 0.8.0</div>
+            <div id="system-time">最終更新: 2025年05月16日 09:10:00</div>
+          </footer>
+        </div>
+      </details>
     </div>
-    
-    <!-- main.js は最後に読み込む -->
-    <script type="module" src="./main.js"></script>
+
+    <script>
+      // Tauriアプリケーション初期化
+      document.addEventListener('DOMContentLoaded', function() {
+        console.log('Queuelip application initialized');
+        
+        // システム日時の更新
+        updateSystemTime();
+        
+        // マウスホバー検知の設定
+        setupHoverDetection();
+        
+        // タブとボタンのイベントリスナー設定
+        setupTabButtons();
+        setupLegacyButtons();
+      });
+
+      // システム日時を更新する
+      function updateSystemTime() {
+        const systemTimeElement = document.getElementById('system-time');
+        if (systemTimeElement) {
+          const now = new Date();
+          const year = now.getFullYear();
+          const month = String(now.getMonth() + 1).padStart(2, '0');
+          const day = String(now.getDate()).padStart(2, '0');
+          const hours = String(now.getHours()).padStart(2, '0');
+          const minutes = String(now.getMinutes()).padStart(2, '0');
+          const seconds = String(now.getSeconds()).padStart(2, '0');
+          
+          systemTimeElement.textContent = `最終更新: ${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
+        }
+      }
+
+      // ホバー検知機能を設定
+      function setupHoverDetection() {
+        const mainView = document.getElementById('view-main');
+        const hoverStatus = document.getElementById('hover-status');
+        
+        if (mainView && hoverStatus) {
+          mainView.addEventListener('mouseenter', function() {
+            hoverStatus.textContent = 'ホバー検知: アクティブ';
+            hoverStatus.classList.add('active');
+          });
+          
+          mainView.addEventListener('mouseleave', function() {
+            hoverStatus.textContent = 'ホバー検知: 非アクティブ';
+            hoverStatus.classList.remove('active');
+          });
+        }
+      }
+
+      // タブボタンの設定
+      function setupTabButtons() {
+        const tabButtons = document.querySelectorAll('.nav-tab');
+        
+        tabButtons.forEach(function(button) {
+          button.addEventListener('click', function() {
+            const viewName = this.getAttribute('data-view');
+            if (viewName) {
+              switchView(viewName);
+            }
+          });
+        });
+      }
+
+      // レガシーボタンの設定
+      function setupLegacyButtons() {
+        const buttonA = document.getElementById('buttonA');
+        const buttonB = document.getElementById('buttonB');
+        const buttonC = document.getElementById('buttonC');
+        
+        if (buttonA) {
+          buttonA.addEventListener('click', function() {
+            switchView('a');
+          });
+        }
+        
+        if (buttonB) {
+          buttonB.addEventListener('click', function() {
+            switchView('b');
+          });
+        }
+        
+        if (buttonC) {
+          buttonC.addEventListener('click', function() {
+            switchView('c');
+          });
+        }
+      }
+
+      // ビューを切り替える
+      function switchView(viewName) {
+        console.log('Switching to view:', viewName);
+        
+        // 現在のアクティブビューを非表示にする
+        const currentView = document.querySelector('.view.active');
+        const currentTab = document.querySelector('.nav-tab.active');
+        
+        if (currentView) {
+          currentView.classList.remove('active');
+        }
+        
+        if (currentTab) {
+          currentTab.classList.remove('active');
+        }
+        
+        // 新しいビューとタブをアクティブにする
+        const newView = document.getElementById(`view-${viewName}`);
+        const newTab = document.querySelector(`.nav-tab[data-view="${viewName}"]`);
+        
+        if (newView) {
+          newView.classList.add('active');
+        }
+        
+        if (newTab) {
+          newTab.classList.add('active');
+        }
+      }
+    </script>
   </body>
 </html>
