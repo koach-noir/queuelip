@@ -8,13 +8,16 @@ export function setupTabButtons() {
       if (viewName) {
         switchView(viewName);
         
-        // ビューAの場合はモーダルダイアログを表示
-        if (viewName === 'a') {
-          showAViewModal();
+        // メインビュー以外はモーダルダイアログを表示
+        if (viewName !== 'main') {
+          showViewModal(viewName);
         }
       }
     });
   });
+  
+  // モーダルの閉じるボタンのイベントリスナーを設定
+  setupModalCloseButtons();
 }
 
 // ビューを切り替える
@@ -63,27 +66,42 @@ export function switchView(viewName) {
   }
 }
 
-// Aビュー用モーダルダイアログを表示
-export function showAViewModal() {
-  const modalDialog = document.getElementById('a-modal-dialog');
+// モーダルダイアログの閉じるボタンのイベントリスナーを設定
+function setupModalCloseButtons() {
+  const closeButtons = document.querySelectorAll('.modal-close');
+  closeButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const viewName = this.getAttribute('data-view');
+      closeViewModal(viewName);
+    });
+  });
+}
+
+// ビュー用モーダルダイアログを表示
+export function showViewModal(viewName) {
+  const modalDialog = document.getElementById(`modal-${viewName}`);
   if (modalDialog) {
     modalDialog.classList.add('active');
   }
-  
-  // モーダルの閉じるボタンのイベントリスナーを設定
-  const closeButton = document.getElementById('modal-close');
-  if (closeButton) {
-    closeButton.addEventListener('click', closeAViewModal);
-  }
 }
 
-// Aビュー用モーダルダイアログを閉じる
-export function closeAViewModal() {
-  const modalDialog = document.getElementById('a-modal-dialog');
+// ビュー用モーダルダイアログを閉じる
+export function closeViewModal(viewName) {
+  const modalDialog = document.getElementById(`modal-${viewName}`);
   if (modalDialog) {
     modalDialog.classList.remove('active');
     
     // メインビューに戻る
     switchView('main');
   }
+}
+
+// 旧メソッド（互換性のため残しています）
+export function showAViewModal() {
+  showViewModal('a');
+}
+
+// 旧メソッド（互換性のため残しています）
+export function closeAViewModal() {
+  closeViewModal('a');
 }
