@@ -202,7 +202,7 @@ details[open] summary::after {
   background-color: #f0f2ff;
 }
 
-/* モーダルダイアログ */
+/* モーダルダイアログ共通スタイル */
 .modal-dialog {
   position: fixed;
   top: 0;
@@ -230,7 +230,6 @@ details[open] summary::after {
   width: 100%;
   padding: 1rem;
   text-align: center;
-  background-color: #eff6ff;
   border-bottom: 1px solid #d1d5db;
 }
 
@@ -250,7 +249,6 @@ details[open] summary::after {
   background: transparent;
   border: none;
   font-size: 24px;
-  color: #2563eb;
   cursor: pointer;
   width: 30px;
   height: 30px;
@@ -261,8 +259,45 @@ details[open] summary::after {
   transition: all 0.2s ease;
 }
 
-.modal-close:hover {
+/* ビューA用モーダルスタイル */
+.modal-a .modal-header {
+  background-color: #eff6ff;
+}
+
+.modal-a .modal-close {
+  color: #2563eb;
+}
+
+.modal-a .modal-close:hover {
   background-color: rgba(37, 99, 235, 0.1);
+  transform: scale(1.1);
+}
+
+/* ビューB用モーダルスタイル */
+.modal-b .modal-header {
+  background-color: #f5f3ff;
+}
+
+.modal-b .modal-close {
+  color: #9333ea;
+}
+
+.modal-b .modal-close:hover {
+  background-color: rgba(147, 51, 234, 0.1);
+  transform: scale(1.1);
+}
+
+/* ビューC用モーダルスタイル */
+.modal-c .modal-header {
+  background-color: #fdf2f8;
+}
+
+.modal-c .modal-close {
+  color: #db2777;
+}
+
+.modal-c .modal-close:hover {
+  background-color: rgba(219, 39, 119, 0.1);
   transform: scale(1.1);
 }
 
