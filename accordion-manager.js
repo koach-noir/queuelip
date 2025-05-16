@@ -11,6 +11,18 @@ class AccordionManager {
    * @returns {HTMLElement} 作成されたdetails要素
    */
   static createAccordion(title, content, parent, isOpen = false) {
+    console.log(`Creating accordion with title: ${title}`);
+    
+    // 親要素が存在するか確認
+    const parentElement = typeof parent === 'string' 
+      ? document.querySelector(parent) 
+      : parent;
+    
+    if (!parentElement) {
+      console.error(`親要素が見つかりません: ${parent}`);
+      return null;
+    }
+    
     // details要素の作成
     const details = document.createElement('details');
     if (isOpen) {
@@ -36,16 +48,10 @@ class AccordionManager {
     details.appendChild(contentDiv);
 
     // 親要素に追加
-    const parentElement = typeof parent === 'string' 
-      ? document.querySelector(parent) 
-      : parent;
+    parentElement.appendChild(details);
     
-    if (parentElement) {
-      parentElement.appendChild(details);
-    } else {
-      console.error('親要素が見つかりません');
-    }
-
+    console.log(`Accordion created and appended to parent`);
+    
     return details;
   }
 
@@ -56,6 +62,7 @@ class AccordionManager {
    * @returns {Array<HTMLElement>} 作成されたdetails要素の配列
    */
   static createAccordionGroup(items, parent) {
+    console.log(`Creating accordion group with ${items.length} items`);
     return items.map(item => {
       return this.createAccordion(item.title, item.content, parent, item.isOpen || false);
     });
@@ -81,3 +88,8 @@ class AccordionManager {
     });
   }
 }
+
+// グローバルスコープで利用できるよう、windowにアタッチ
+window.AccordionManager = AccordionManager;
+
+console.log('AccordionManager loaded');
