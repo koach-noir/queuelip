@@ -132,6 +132,41 @@
   background-color: #be185d;
 }
 
+/* 新規ページボタン */
+.primary-button {
+  padding: 0.6rem 1.2rem;
+  background-color: #059669;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.primary-button:hover {
+  background-color: #047857;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.secondary-button {
+  padding: 0.6rem 1.2rem;
+  background-color: #6b7280;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.secondary-button:hover {
+  background-color: #4b5563;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
 /* ホバー状態表示のスタイル */
 .hover-status {
   margin-top: 1rem;
