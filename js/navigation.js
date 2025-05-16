@@ -7,6 +7,11 @@ export function setupTabButtons() {
       const viewName = this.getAttribute('data-view');
       if (viewName) {
         switchView(viewName);
+        
+        // ビューAの場合はモーダルダイアログを表示
+        if (viewName === 'a') {
+          showAViewModal();
+        }
       }
     });
   });
@@ -55,5 +60,30 @@ export function switchView(viewName) {
     setTimeout(() => {
       newView.classList.remove('fade-in');
     }, 300); // アニメーション終了後にクラスを除去
+  }
+}
+
+// Aビュー用モーダルダイアログを表示
+export function showAViewModal() {
+  const modalDialog = document.getElementById('a-modal-dialog');
+  if (modalDialog) {
+    modalDialog.classList.add('active');
+  }
+  
+  // モーダルの閉じるボタンのイベントリスナーを設定
+  const closeButton = document.getElementById('modal-close');
+  if (closeButton) {
+    closeButton.addEventListener('click', closeAViewModal);
+  }
+}
+
+// Aビュー用モーダルダイアログを閉じる
+export function closeAViewModal() {
+  const modalDialog = document.getElementById('a-modal-dialog');
+  if (modalDialog) {
+    modalDialog.classList.remove('active');
+    
+    // メインビューに戻る
+    switchView('main');
   }
 }
