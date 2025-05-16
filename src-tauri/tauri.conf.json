@@ -16,6 +16,14 @@
         "readText": true,
         "writeText": true
       },
+      "dialog": {
+        "all": true,
+        "open": true,
+        "save": true,
+        "message": true,
+        "ask": true,
+        "confirm": true
+      },
       "window": {
         "all": true
       },
