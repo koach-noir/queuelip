@@ -1,4 +1,7 @@
 // POPボタンの機能実装
+// @ts-ignore
+const { dialog } = window.__TAURI__ || { dialog: { message: (msg) => alert(msg) } };
+
 export function setupPopButtons() {
   const popButtonA = document.getElementById('popButtonA');
   const popButtonB = document.getElementById('popButtonB');
@@ -6,7 +9,8 @@ export function setupPopButtons() {
   
   // ポップアップメッセージを表示する関数
   function showPopMessage() {
-    alert('POP!');
+    // Tauriダイアログを使用
+    dialog.message('POP!');
   }
   
   // 各ボタンにイベントリスナーを設定
