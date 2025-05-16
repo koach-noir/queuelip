@@ -18,6 +18,80 @@ export function setupTabButtons() {
   
   // モーダルの閉じるボタンのイベントリスナーを設定
   setupModalCloseButtons();
+  
+  // 新規ページへのボタンとバックボタンのイベントリスナーを設定
+  setupNewPageNavigation();
+}
+
+// 新規ページナビゲーションの設定
+function setupNewPageNavigation() {
+  // 新規ページへのボタン
+  const newPageButton = document.getElementById('new-page-button');
+  if (newPageButton) {
+    newPageButton.addEventListener('click', function() {
+      navigateToNewPage();
+    });
+  }
+  
+  // ビューAに戻るボタン
+  const backToAButton = document.getElementById('back-to-a-button');
+  if (backToAButton) {
+    backToAButton.addEventListener('click', function() {
+      navigateBackToViewA();
+    });
+  }
+}
+
+// 新規ページへ遷移
+export function navigateToNewPage() {
+  console.log('Navigating to new page');
+  
+  // モーダルを閉じる
+  const modalA = document.getElementById('modal-a');
+  if (modalA && modalA.classList.contains('active')) {
+    modalA.classList.remove('active');
+  }
+  
+  // 新規ページに切り替え
+  switchToNewPage();
+}
+
+// ビューAに戻る
+export function navigateBackToViewA() {
+  console.log('Navigating back to View A');
+  
+  // 新規ページから戻る
+  switchView('a');
+  
+  // モーダルを表示
+  showViewModal('a');
+}
+
+// 新規ページへの切り替え
+function switchToNewPage() {
+  // 現在のアクティブビューを非表示にする
+  const currentView = document.querySelector('.view.active');
+  
+  if (currentView) {
+    currentView.classList.remove('active');
+  }
+  
+  // タブからアクティブクラスを削除
+  const activeTab = document.querySelector('.nav-tab.active');
+  if (activeTab) {
+    activeTab.classList.remove('active');
+    activeTab.classList.add('tab-hover-inactive');
+  }
+  
+  // 新規ページをアクティブに
+  const newPageView = document.getElementById('view-new-page');
+  if (newPageView) {
+    newPageView.classList.add('active');
+    newPageView.classList.add('fade-in');
+    setTimeout(() => {
+      newPageView.classList.remove('fade-in');
+    }, 300);
+  }
 }
 
 // ビューを切り替える
