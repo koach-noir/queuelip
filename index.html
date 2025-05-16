@@ -14,10 +14,10 @@
     <div class="container">
       <!-- タブナビゲーション -->
       <div class="nav-tabs">
-        <button class="nav-tab active" data-view="main">メイン</button>
-        <button class="nav-tab" data-view="a">ビューA</button>
-        <button class="nav-tab" data-view="b">ビューB</button>
-        <button class="nav-tab" data-view="c">ビューC</button>
+        <button class="nav-tab active" data-view="main" data-hover="active" data-hover-type="tab" data-hover-group="tabs">メイン</button>
+        <button class="nav-tab" data-view="a" data-hover="active" data-hover-type="tab" data-hover-group="tabs">ビューA</button>
+        <button class="nav-tab" data-view="b" data-hover="active" data-hover-type="tab" data-hover-group="tabs">ビューB</button>
+        <button class="nav-tab" data-view="c" data-hover="active" data-hover-type="tab" data-hover-group="tabs">ビューC</button>
       </div>
       
       <!-- コンテンツエリア -->
@@ -26,7 +26,7 @@
         <div class="view view-main active" id="view-main">
           <!-- ヘッダー情報 (アコーディオン) -->
           <details class="main-details">
-            <summary>info</summary>
+            <summary data-hover="active" data-hover-type="container" data-hover-group="accordions">info</summary>
             <div class="details-content">
               <h1>Queuelip</h1>
               <p>キューの動作を持つクリップボードアプリ「Queuelip-キューリップ🌷🌷」</p>
@@ -39,20 +39,20 @@
           
           <!-- 以前のボタン (互換性のため残しています) -->
           <div class="button-container">
-            <button id="buttonA" class="popup-button">A</button>
-            <button id="buttonB" class="popup-button">B</button>
-            <button id="buttonC" class="popup-button">C</button>
+            <button id="buttonA" class="popup-button" data-hover="active" data-hover-type="btn" data-hover-group="buttons">A</button>
+            <button id="buttonB" class="popup-button" data-hover="active" data-hover-type="btn" data-hover-group="buttons">B</button>
+            <button id="buttonC" class="popup-button" data-hover="active" data-hover-type="btn" data-hover-group="buttons">C</button>
           </div>
           
           <div id="hover-status" class="hover-status">ホバー検知: 非アクティブ</div>
           
           <!-- フッター情報 (アコーディオン) -->
           <details class="main-details">
-            <summary>version</summary>
+            <summary data-hover="active" data-hover-type="container" data-hover-group="accordions">version</summary>
             <div class="details-content">
               <footer class="app-footer">
-                <div id="version-info">バージョン: 0.1.104</div>
-                <div id="system-time">最終更新: 2025年05月16日 14:55:00</div>
+                <div id="version-info">バージョン: 0.1.105</div>
+                <div id="system-time">最終更新: 2025年05月16日 15:38:00</div>
               </footer>
             </div>
           </details>
