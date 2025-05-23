@@ -1,0 +1,262 @@
+/* 
+ * Mini Window Styles
+ * ベゼルレス対応、半透明コンテナ仕様
+ */
+
+/* === 設定オプション === */
+:root {
+    /* オプション切り替え用変数 */
+    --mini-bg-opacity: 0.9;              /* 半透明度 (0.0-1.0) */
+    --mini-bg-color: rgba(30, 30, 30, var(--mini-bg-opacity));
+    --mini-border-radius: 12px;          /* 角の丸み */
+    --mini-backdrop-blur: 10px;          /* 背景ブラー効果 */
+    
+    /* カラーテーマ */
+    --mini-accent-color: #3b82f6;        /* アクセントカラー */
+    --mini-text-primary: #ffffff;        /* メインテキスト */
+    --mini-text-secondary: #d1d5db;      /* サブテキスト */
+    --mini-border-color: rgba(75, 85, 99, 0.3);
+    
+    /* アニメーション */
+    --mini-transition: all 0.2s ease-in-out;
+}
+
+/* === ベースレイアウト === */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: transparent;
+    overflow: hidden;
+}
+
+.mini-container {
+    width: 100vw;
+    height: 100vh;
+    background: var(--mini-bg-color);
+    backdrop-filter: blur(var(--mini-backdrop-blur));
+    border-radius: var(--mini-border-radius);
+    border: 1px solid var(--mini-border-color);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: var(--mini-transition);
+}
+
+.mini-container:hover {
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.4);
+}
+
+/* === ヘッダー === */
+.mini-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px 8px 16px;
+    border-bottom: 1px solid var(--mini-border-color);
+    background: rgba(255, 255, 255, 0.05);
+    cursor: move; /* ドラッグ可能 */
+}
+
+.mini-title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--mini-text-primary);
+    user-select: none;
+}
+
+.close-button {
+    background: #ff5f56;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--mini-transition);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.close-button:hover {
+    background: #ff3b30;
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.close-button:active {
+    transform: scale(0.95);
+}
+
+/* === コンテンツエリア === */
+.mini-content {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--mini-accent-color) transparent;
+}
+
+.mini-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.mini-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.mini-content::-webkit-scrollbar-thumb {
+    background: var(--mini-accent-color);
+    border-radius: 3px;
+}
+
+/* === アコーディオン === */
+.mini-accordion {
+    margin-bottom: 12px;
+    border: 1px solid var(--mini-border-color);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    transition: var(--mini-transition);
+}
+
+.mini-accordion:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--mini-accent-color);
+}
+
+.mini-accordion summary {
+    padding: 12px 16px;
+    cursor: pointer;
+    user-select: none;
+    font-weight: 500;
+    color: var(--mini-text-primary);
+    list-style: none;
+    position: relative;
+    transition: var(--mini-transition);
+}
+
+.mini-accordion summary::-webkit-details-marker {
+    display: none;
+}
+
+.mini-accordion summary::after {
+    content: '▼';
+    position: absolute;
+    right: 16px;
+    font-size: 10px;
+    color: var(--mini-accent-color);
+    transition: transform 0.2s ease;
+}
+
+.mini-accordion[open] summary::after {
+    transform: rotate(180deg);
+}
+
+.mini-accordion summary:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.accordion-content {
+    padding: 0 16px 16px 16px;
+    border-top: 1px solid var(--mini-border-color);
+    animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.accordion-content p {
+    margin: 12px 0 8px 0;
+    color: var(--mini-text-secondary);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.accordion-content ul {
+    margin: 8px 0;
+    padding-left: 20px;
+    color: var(--mini-text-secondary);
+    font-size: 12px;
+}
+
+.accordion-content li {
+    margin-bottom: 4px;
+    line-height: 1.4;
+}
+
+/* === フッター === */
+.mini-footer {
+    padding: 8px 16px;
+    border-top: 1px solid var(--mini-border-color);
+    background: rgba(255, 255, 255, 0.03);
+    text-align: center;
+}
+
+.mini-footer small {
+    color: var(--mini-text-secondary);
+    font-size: 11px;
+    opacity: 0.8;
+}
+
+/* === レスポンシブ対応 === */
+@media (max-width: 400px) {
+    .mini-header {
+        padding: 10px 12px 6px 12px;
+    }
+    
+    .mini-title {
+        font-size: 13px;
+    }
+    
+    .close-button {
+        width: 18px;
+        height: 18px;
+        font-size: 11px;
+    }
+    
+    .mini-content {
+        padding: 12px;
+    }
+    
+    .mini-accordion summary {
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+    
+    .accordion-content {
+        padding: 0 12px 12px 12px;
+    }
+}
+
+/* === 設定変更用クラス === */
+/* 完全透明背景モード */
+.mini-container.transparent-mode {
+    --mini-bg-color: rgba(0, 0, 0, 0.3);
+    --mini-backdrop-blur: 20px;
+}
+
+/* 常に最前面モード */
+.mini-container.always-on-top {
+    z-index: 9999;
+}
+
+/* 固定サイズモード */
+.mini-container.fixed-size {
+    resize: none;
+    width: 400px;
+    height: 350px;
+}
