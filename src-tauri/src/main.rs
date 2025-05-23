@@ -2,6 +2,60 @@
 
 use tauri::{Manager, RunEvent};
 
+// miniウィンドウの設定オプション
+const MINI_WINDOW_CONFIG: MiniWindowConfig = MiniWindowConfig {
+    transparent_background: false,  // 半透明コンテナ用
+    always_on_top: false,          // 通常ウィンドウ
+    resizable: true,               // 可変サイズ
+    width: 400.0,
+    height: 350.0,
+};
+
+struct MiniWindowConfig {
+    transparent_background: bool,
+    always_on_top: bool,
+    resizable: bool,
+    width: f64,
+    height: f64,
+}
+
+// miniウィンドウを開くコマンド
+#[tauri::command]
+async fn open_mini_window(app_handle: tauri::AppHandle) -> Result<(), String> {
+    // 既存のminiウィンドウがあれば閉じる
+    if let Some(existing_window) = app_handle.get_window("mini") {
+        existing_window.close().map_err(|e| e.to_string())?;
+    }
+    
+    let mini_window = tauri::WindowBuilder::new(
+        &app_handle,
+        "mini", // ユニークラベル
+        tauri::WindowUrl::App("mini.html".into())
+    )
+    .title("Mini View")
+    .decorations(false)     // ベゼルレス
+    .transparent(MINI_WINDOW_CONFIG.transparent_background)
+    .always_on_top(MINI_WINDOW_CONFIG.always_on_top)
+    .resizable(MINI_WINDOW_CONFIG.resizable)
+    .width(MINI_WINDOW_CONFIG.width)
+    .height(MINI_WINDOW_CONFIG.height)
+    .build()
+    .map_err(|e| e.to_string())?;
+    
+    println!("Mini window opened successfully");
+    Ok(())
+}
+
+// miniウィンドウを閉じるコマンド
+#[tauri::command]
+async fn close_mini_window(app_handle: tauri::AppHandle) -> Result<(), String> {
+    if let Some(mini_window) = app_handle.get_window("mini") {
+        mini_window.close().map_err(|e| e.to_string())?;
+        println!("Mini window closed successfully");
+    }
+    Ok(())
+}
+
 // アプリケーションを強制終了する関数
 #[tauri::command]
 async fn exit_app(app_handle: tauri::AppHandle) -> Result<(), String> {
@@ -14,7 +68,9 @@ fn main() {
     tauri::Builder::default()
         // コマンドを登録
         .invoke_handler(tauri::generate_handler![
-            exit_app
+            exit_app,
+            open_mini_window,
+            close_mini_window
         ])
         // メインウィンドウの設定
         .setup(|app| {
