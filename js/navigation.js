@@ -1,3 +1,5 @@
+import { viewManager } from './view-loader.js';
+
 // タブボタンの設定
 export function setupTabButtons() {
   const tabButtons = document.querySelectorAll('.nav-tab');
@@ -12,7 +14,7 @@ export function setupTabButtons() {
   });
 }
 
-// ビューを切り替える
+// ビューを切り替える（テンプレート文字列アプローチ対応）
 export function switchView(viewName) {
   console.log('Switching to view:', viewName);
   
@@ -35,7 +37,17 @@ export function switchView(viewName) {
   const newTab = document.querySelector(`.nav-tab[data-view="${viewName}"]`);
   
   if (newView) {
+    // メインビュー以外の場合はテンプレートを描画
+    if (viewName !== 'main') {
+      const success = viewManager.renderView(viewName, `view-${viewName}`);
+      if (!success) {
+        console.error(`Failed to render view: ${viewName}`);
+        return;
+      }
+    }
+    
     newView.classList.add('active');
+    viewManager.setCurrentView(viewName);
   }
   
   if (newTab) {
