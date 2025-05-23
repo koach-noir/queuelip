@@ -1,3 +1,5 @@
+import { viewLoader } from './view-loader.js';
+
 // タブボタンの設定
 export function setupTabButtons() {
   const tabButtons = document.querySelectorAll('.nav-tab');
@@ -12,8 +14,8 @@ export function setupTabButtons() {
   });
 }
 
-// ビューを切り替える
-export function switchView(viewName) {
+// ビューを切り替える（動的読み込み対応）
+export async function switchView(viewName) {
   console.log('Switching to view:', viewName);
   
   // 現在のアクティブビューを非表示にする
@@ -32,10 +34,16 @@ export function switchView(viewName) {
   
   // 新しいビューとタブをアクティブにする
   const newView = document.getElementById(`view-${viewName}`);
-  const newTab = document.querySelector(`.nav-tab[data-view="${viewName}"]`);
+  const newTab = document.querySelector(`.nav-tab[data-view=\"${viewName}\"]`);
   
   if (newView) {
+    // メインビュー以外の場合は動的読み込みを実行
+    if (viewName !== 'main') {
+      await viewLoader.renderView(viewName, `view-${viewName}`);
+    }
+    
     newView.classList.add('active');
+    viewLoader.setCurrentView(viewName);
   }
   
   if (newTab) {
