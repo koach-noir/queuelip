@@ -4,7 +4,7 @@ import { setupTabButtons } from './navigation.js';
 import { setupLegacyButtons } from './legacy.js';
 import { initVersionInfo, APP_VERSION, LAST_UPDATE } from './version.js';
 import { setupPopButtons } from './popbuttons.js';
-import { viewLoader } from './view-loader.js'; // 動的読み込み機能のインポート
+import { viewManager } from './view-loader.js'; // テンプレート文字列アプローチ
 
 // Tauriアプリケーション初期化
 document.addEventListener('DOMContentLoaded', function() {
@@ -25,5 +25,5 @@ document.addEventListener('DOMContentLoaded', function() {
   setupLegacyButtons();
   setupPopButtons(); // POPボタン機能の初期化
   
-  console.log('View loader initialized'); // 動的読み込み機能が利用可能であることを確認
+  console.log('View manager initialized (template string approach)'); // テンプレート文字列アプローチが利用可能であることを確認
 });
