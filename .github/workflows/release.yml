@@ -23,14 +23,27 @@ jobs:
         with:
           fetch-depth: 2
 
-      - name: Check commit message
+      - name: Check commit message and version file
         id: check_message
         run: |
           COMMIT_MSG=$(git log -1 --pretty=%B)
-          if [[ "$COMMIT_MSG" == *"[release]"* ]]; then
+          
+          # [release] が含まれているかチェック
+          if [[ "$COMMIT_MSG" != *"[release]"* ]]; then
+            echo "should_release=false" >> $GITHUB_OUTPUT
+            echo "✅ No [release] tag found - normal commit, no release triggered"
+            exit 0
+          fi
+          
+          # js/version.js が変更されているかチェック
+          if git diff HEAD~1 --name-only | grep -q "js/version.js"; then
             echo "should_release=true" >> $GITHUB_OUTPUT
+            echo "✅ Version file updated with [release] tag - proceeding with release"
           else
             echo "should_release=false" >> $GITHUB_OUTPUT
+            echo "❌ Warning: [release] tag found but js/version.js was not modified"
+            echo "   This appears to be an accidental [release] tag usage"
+            echo "   To trigger a release, please update js/version.js and commit with [release]"
           fi
         shell: bash
 
