@@ -5,16 +5,22 @@
  */
 export class FocusManager {
   constructor() {
-    // 各ビューでフォーカスすべき要素のセレクタを定義
-    this.focusTargets = {
-      main: '.main-details:first-of-type summary', // 最初のアコーディオンのsummary
-      a: '#popButtonA',                          // ビューAのPOPボタン
-      b: '#popButtonB',                          // ビューBのPOPボタン
-      c: '#popButtonC'                           // ビューCのPOPボタン
-    };
-    
     // フォーカス設定の遅延時間（ビュー切り替えアニメーション考慮）
     this.focusDelay = 100;
+    
+    // フォーカス可能な要素のセレクタ
+    this.focusableElementsSelector = [
+      'button:not([disabled])',
+      'input:not([disabled])',
+      'select:not([disabled])',
+      'textarea:not([disabled])',
+      'a[href]',
+      'area[href]',
+      'summary',
+      '[tabindex]:not([tabindex="-1"]):not([disabled])',
+      'details:not([disabled])',
+      '[contenteditable="true"]'
+    ].join(', ');
   }
 
   /**
@@ -22,33 +28,64 @@ export class FocusManager {
    * @param {string} viewName - フォーカスを設定するビュー名
    */
   setInitialFocus(viewName) {
-    const selector = this.focusTargets[viewName];
-    
-    if (!selector) {
-      console.warn(`Focus target not defined for view: ${viewName}`);
-      return;
-    }
-
     // ビュー切り替えアニメーションの完了を待ってからフォーカス設定
     setTimeout(() => {
-      const targetElement = document.querySelector(selector);
+      const viewContainer = document.getElementById(`view-${viewName}`);
       
-      if (targetElement) {
+      if (!viewContainer) {
+        console.warn(`View container not found: view-${viewName}`);
+        return;
+      }
+
+      // nav-tabs以外の先頭のフォーカス可能要素を検索
+      const firstFocusableElement = this.findFirstFocusableElement(viewContainer);
+      
+      if (firstFocusableElement) {
         try {
-          // 要素が表示されている場合のみフォーカスを設定
-          if (this.isElementVisible(targetElement)) {
-            targetElement.focus();
-            console.log(`Focus set to element: ${selector} in view: ${viewName}`);
-          } else {
-            console.warn(`Target element not visible: ${selector} in view: ${viewName}`);
-          }
+          firstFocusableElement.focus();
+          console.log(`Focus set to first focusable element in view: ${viewName}`, firstFocusableElement);
         } catch (error) {
-          console.error(`Failed to set focus on element: ${selector}`, error);
+          console.error(`Failed to set focus on element in view: ${viewName}`, error);
         }
       } else {
-        console.warn(`Focus target element not found: ${selector} in view: ${viewName}`);
+        console.warn(`No focusable element found in view: ${viewName}`);
       }
     }, this.focusDelay);
+  }
+
+  /**
+   * 指定されたコンテナ内でnav-tabs以外の先頭のフォーカス可能要素を検索
+   * @param {Element} container - 検索対象のコンテナ要素
+   * @returns {Element|null} 最初のフォーカス可能要素またはnull
+   */
+  findFirstFocusableElement(container) {
+    // コンテナ内のすべてのフォーカス可能要素を取得
+    const focusableElements = container.querySelectorAll(this.focusableElementsSelector);
+    
+    for (const element of focusableElements) {
+      // nav-tabsの子要素またはnav-tabs自体は除外
+      if (this.isWithinNavTabs(element)) {
+        continue;
+      }
+      
+      // 要素が表示されているかチェック
+      if (this.isElementVisible(element)) {
+        return element;
+      }
+    }
+    
+    return null;
+  }
+
+  /**
+   * 要素がnav-tabs内にあるかチェック
+   * @param {Element} element - チェックする要素
+   * @returns {boolean} nav-tabs内の要素の場合true
+   */
+  isWithinNavTabs(element) {
+    return element.closest('.nav-tabs') !== null || 
+           element.classList.contains('nav-tabs') || 
+           element.classList.contains('nav-tab');
   }
 
   /**
@@ -57,30 +94,15 @@ export class FocusManager {
    * @returns {boolean} 要素が表示されている場合true
    */
   isElementVisible(element) {
+    // 基本的な表示チェック
+    if (element.offsetWidth === 0 && element.offsetHeight === 0) {
+      return false;
+    }
+    
     const style = window.getComputedStyle(element);
     return style.display !== 'none' && 
            style.visibility !== 'hidden' && 
-           element.offsetWidth > 0 && 
-           element.offsetHeight > 0;
-  }
-
-  /**
-   * 新しいビューのフォーカス対象を追加
-   * @param {string} viewName - ビュー名
-   * @param {string} selector - フォーカス対象のCSSセレクタ
-   */
-  addFocusTarget(viewName, selector) {
-    this.focusTargets[viewName] = selector;
-    console.log(`Added focus target for view ${viewName}: ${selector}`);
-  }
-
-  /**
-   * 指定ビューのフォーカス対象を削除
-   * @param {string} viewName - ビュー名
-   */
-  removeFocusTarget(viewName) {
-    delete this.focusTargets[viewName];
-    console.log(`Removed focus target for view: ${viewName}`);
+           style.opacity !== '0';
   }
 
   /**
@@ -90,14 +112,6 @@ export class FocusManager {
   setFocusDelay(delay) {
     this.focusDelay = delay;
     console.log(`Focus delay set to: ${delay}ms`);
-  }
-
-  /**
-   * 現在のフォーカス対象設定を取得
-   * @returns {Object} フォーカス対象の設定オブジェクト
-   */
-  getFocusTargets() {
-    return { ...this.focusTargets };
   }
 
   /**
@@ -133,6 +147,29 @@ export class FocusManager {
     }
     
     return selector;
+  }
+
+  /**
+   * 指定ビューのフォーカス可能要素をデバッグ出力
+   * @param {string} viewName - ビュー名
+   */
+  debugFocusableElements(viewName) {
+    const viewContainer = document.getElementById(`view-${viewName}`);
+    if (!viewContainer) {
+      console.warn(`View container not found for debug: view-${viewName}`);
+      return;
+    }
+
+    const allFocusable = viewContainer.querySelectorAll(this.focusableElementsSelector);
+    const filteredFocusable = Array.from(allFocusable).filter(el => 
+      !this.isWithinNavTabs(el) && this.isElementVisible(el)
+    );
+
+    console.group(`🔍 Focusable elements debug for view: ${viewName}`);
+    console.log('All focusable elements:', allFocusable);
+    console.log('Filtered focusable elements (excluding nav-tabs):', filteredFocusable);
+    console.log('First focusable element:', filteredFocusable[0] || 'None found');
+    console.groupEnd();
   }
 }
 
