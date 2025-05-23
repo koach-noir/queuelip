@@ -20,5 +20,12 @@ export default defineConfig(async () => ({
     minify: !process.env.TAURI_DEBUG ? 'esbuild' : false,
     // produce sourcemaps for debug builds
     sourcemap: !!process.env.TAURI_DEBUG,
+    // 複数のHTMLファイルをビルド対象に追加
+    rollupOptions: {
+      input: {
+        main: 'index.html',
+        mini: 'mini.html'
+      }
+    }
   },
 }));
