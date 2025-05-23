@@ -4,7 +4,6 @@ use tauri::{Manager, RunEvent};
 
 // miniウィンドウの設定オプション
 const MINI_WINDOW_CONFIG: MiniWindowConfig = MiniWindowConfig {
-    transparent_background: false,  // 半透明コンテナ用
     always_on_top: false,          // 通常ウィンドウ
     resizable: true,               // 可変サイズ
     width: 400.0,
@@ -12,14 +11,13 @@ const MINI_WINDOW_CONFIG: MiniWindowConfig = MiniWindowConfig {
 };
 
 struct MiniWindowConfig {
-    transparent_background: bool,
     always_on_top: bool,
     resizable: bool,
     width: f64,
     height: f64,
 }
 
-// miniウィンドウを開くコマンド
+// miniウィンドウを開くコマンド（メインウィンドウを閉じる機能付き）
 #[tauri::command]
 async fn open_mini_window(app_handle: tauri::AppHandle) -> Result<(), String> {
     // 既存のminiウィンドウがあれば閉じる
@@ -27,6 +25,7 @@ async fn open_mini_window(app_handle: tauri::AppHandle) -> Result<(), String> {
         existing_window.close().map_err(|e| e.to_string())?;
     }
     
+    // miniウィンドウを作成
     let mini_window = tauri::WindowBuilder::new(
         &app_handle,
         "mini", // ユニークラベル
@@ -34,25 +33,48 @@ async fn open_mini_window(app_handle: tauri::AppHandle) -> Result<(), String> {
     )
     .title("Mini View")
     .decorations(false)     // ベゼルレス
-    .transparent(MINI_WINDOW_CONFIG.transparent_background)
     .always_on_top(MINI_WINDOW_CONFIG.always_on_top)
     .resizable(MINI_WINDOW_CONFIG.resizable)
-    .width(MINI_WINDOW_CONFIG.width)
-    .height(MINI_WINDOW_CONFIG.height)
+    .inner_size(MINI_WINDOW_CONFIG.width, MINI_WINDOW_CONFIG.height)
     .build()
     .map_err(|e| e.to_string())?;
     
+    // miniウィンドウが閉じられた時のイベントハンドラを設定
+    let app_handle_clone = app_handle.clone();
+    mini_window.on_window_event(move |event| {
+        match event {
+            tauri::WindowEvent::CloseRequested { .. } => {
+                println!("Mini window close requested, exiting application");
+                // miniウィンドウが閉じられたらアプリケーション全体を終了
+                app_handle_clone.exit(0);
+            },
+            _ => {}
+        }
+    });
+    
     println!("Mini window opened successfully");
+    
+    // メインウィンドウを閉じる
+    if let Some(main_window) = app_handle.get_window("main") {
+        main_window.close().map_err(|e| e.to_string())?;
+        println!("Main window closed successfully");
+    }
+    
     Ok(())
 }
 
-// miniウィンドウを閉じるコマンド
+// miniウィンドウを閉じるコマンド（アプリケーション終了付き）
 #[tauri::command]
 async fn close_mini_window(app_handle: tauri::AppHandle) -> Result<(), String> {
     if let Some(mini_window) = app_handle.get_window("mini") {
         mini_window.close().map_err(|e| e.to_string())?;
         println!("Mini window closed successfully");
     }
+    
+    // miniウィンドウが閉じられたらアプリケーション全体を終了
+    println!("Exiting application after mini window close");
+    app_handle.exit(0);
+    
     Ok(())
 }
 
@@ -83,9 +105,9 @@ fn main() {
                 let app_handle = app.handle().clone();
                 main_window.on_window_event(move |event| {
                     match event {
-                        tauri::WindowEvent::CloseRequested { api, .. } => {
+                        tauri::WindowEvent::CloseRequested { .. } => {
                             println!("Main window close requested, exiting application");
-                            // アプリケーション全体を終了
+                            // メインウィンドウが閉じられたらアプリケーション全体を終了
                             app_handle.exit(0);
                         },
                         _ => {}
@@ -101,7 +123,7 @@ fn main() {
         .expect("error while building tauri application")
         .run(|_app_handle, event| match event {
             // アプリケーション終了時
-            RunEvent::ExitRequested { api, .. } => {
+            RunEvent::ExitRequested { .. } => {
                 println!("Application exit requested");
                 // 終了を許可
                 _app_handle.exit(0);
