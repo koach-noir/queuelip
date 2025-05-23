@@ -28,3 +28,6 @@ dist-ssr
 WixTools
 src-tauri/icons
 src-tauri/target
+
+# Release artifacts
+release/
