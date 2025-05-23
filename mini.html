@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini View</title>
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/mini.css">
+</head>
+<body>
+    <div class="mini-container">
+        <!-- ヘッダー（ドラッグエリア + 閉じるボタン） -->
+        <div class="mini-header" data-tauri-drag-region>
+            <h2 class="mini-title">Mini View</h2>
+            <button id="closeButton" class="close-button" title="閉じる">×</button>
+        </div>
+        
+        <!-- コンテンツエリア -->
+        <div class="mini-content">
+            <!-- アコーディオン1 -->
+            <details class="mini-accordion">
+                <summary>設定</summary>
+                <div class="accordion-content">
+                    <p>アプリケーションの基本設定を行います。</p>
+                    <ul>
+                        <li>表示モード: ダークテーマ</li>
+                        <li>言語: 日本語</li>
+                        <li>自動保存: 有効</li>
+                    </ul>
+                </div>
+            </details>
+            
+            <!-- アコーディオン2 -->
+            <details class="mini-accordion">
+                <summary>統計情報</summary>
+                <div class="accordion-content">
+                    <p>使用状況の統計データです。</p>
+                    <ul>
+                        <li>総使用時間: 24時間32分</li>
+                        <li>クリップ回数: 1,247回</li>
+                        <li>最後の使用: 2分前</li>
+                    </ul>
+                </div>
+            </details>
+            
+            <!-- アコーディオン3 -->
+            <details class="mini-accordion">
+                <summary>ヘルプ</summary>
+                <div class="accordion-content">
+                    <p>Queuelipの使用方法とヒントです。</p>
+                    <ul>
+                        <li>Ctrl+Cでコピー</li>
+                        <li>Ctrl+Vで貼り付け</li>
+                        <li>履歴は自動で管理されます</li>
+                    </ul>
+                </div>
+            </details>
+        </div>
+        
+        <!-- フッター -->
+        <div class="mini-footer">
+            <small>Mini View - Queuelip</small>
+        </div>
+    </div>
+    
+    <!-- JavaScript -->
+    <script type="module" src="js/mini.js"></script>
+</body>
+</html>
