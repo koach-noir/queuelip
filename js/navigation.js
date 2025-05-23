@@ -12,6 +12,20 @@ export function setupTabButtons() {
       }
     });
   });
+  
+  // 初期化時に非アクティブなビューにinert属性を設定
+  initializeInertViews();
+}
+
+// 初期化時に非アクティブなビューにinert属性を設定
+function initializeInertViews() {
+  const allViews = document.querySelectorAll('.view');
+  
+  allViews.forEach(function(view) {
+    if (!view.classList.contains('active')) {
+      view.setAttribute('inert', '');
+    }
+  });
 }
 
 // ビューを切り替える（テンプレート文字列アプローチ対応）
@@ -24,6 +38,8 @@ export function switchView(viewName) {
   
   if (currentView) {
     currentView.classList.remove('active');
+    // 非アクティブになったビューにinert属性を追加
+    currentView.setAttribute('inert', '');
   }
   
   if (currentTab) {
@@ -47,6 +63,8 @@ export function switchView(viewName) {
     }
     
     newView.classList.add('active');
+    // アクティブになったビューからinert属性を削除
+    newView.removeAttribute('inert');
     viewManager.setCurrentView(viewName);
   }
   
