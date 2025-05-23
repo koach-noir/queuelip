@@ -17,7 +17,7 @@ struct MiniWindowConfig {
     height: f64,
 }
 
-// miniウィンドウを開くコマンド
+// miniウィンドウを開くコマンド（メインウィンドウを閉じる機能付き）
 #[tauri::command]
 async fn open_mini_window(app_handle: tauri::AppHandle) -> Result<(), String> {
     // 既存のminiウィンドウがあれば閉じる
@@ -25,6 +25,7 @@ async fn open_mini_window(app_handle: tauri::AppHandle) -> Result<(), String> {
         existing_window.close().map_err(|e| e.to_string())?;
     }
     
+    // miniウィンドウを作成
     let mini_window = tauri::WindowBuilder::new(
         &app_handle,
         "mini", // ユニークラベル
@@ -38,17 +39,42 @@ async fn open_mini_window(app_handle: tauri::AppHandle) -> Result<(), String> {
     .build()
     .map_err(|e| e.to_string())?;
     
+    // miniウィンドウが閉じられた時のイベントハンドラを設定
+    let app_handle_clone = app_handle.clone();
+    mini_window.on_window_event(move |event| {
+        match event {
+            tauri::WindowEvent::CloseRequested { .. } => {
+                println!("Mini window close requested, exiting application");
+                // miniウィンドウが閉じられたらアプリケーション全体を終了
+                app_handle_clone.exit(0);
+            },
+            _ => {}
+        }
+    });
+    
     println!("Mini window opened successfully");
+    
+    // メインウィンドウを閉じる
+    if let Some(main_window) = app_handle.get_window("main") {
+        main_window.close().map_err(|e| e.to_string())?;
+        println!("Main window closed successfully");
+    }
+    
     Ok(())
 }
 
-// miniウィンドウを閉じるコマンド
+// miniウィンドウを閉じるコマンド（アプリケーション終了付き）
 #[tauri::command]
 async fn close_mini_window(app_handle: tauri::AppHandle) -> Result<(), String> {
     if let Some(mini_window) = app_handle.get_window("mini") {
         mini_window.close().map_err(|e| e.to_string())?;
         println!("Mini window closed successfully");
     }
+    
+    // miniウィンドウが閉じられたらアプリケーション全体を終了
+    println!("Exiting application after mini window close");
+    app_handle.exit(0);
+    
     Ok(())
 }
 
@@ -81,7 +107,7 @@ fn main() {
                     match event {
                         tauri::WindowEvent::CloseRequested { .. } => {
                             println!("Main window close requested, exiting application");
-                            // アプリケーション全体を終了
+                            // メインウィンドウが閉じられたらアプリケーション全体を終了
                             app_handle.exit(0);
                         },
                         _ => {}
