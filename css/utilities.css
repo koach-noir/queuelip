@@ -70,3 +70,17 @@
   background-color: #f9f9f9;
   transition: all 0.3s ease;
 }
+
+/* inert属性が適用された要素の視覚的フィードバック */
+[inert] {
+  cursor: default;
+  opacity: 0.5;
+  filter: grayscale(50%);
+  user-select: none;
+}
+
+/* inert属性が適用されたビューの調整 */
+.view[inert] {
+  opacity: 0;
+  pointer-events: none;
+}
