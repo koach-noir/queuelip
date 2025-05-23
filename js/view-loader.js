@@ -1,35 +1,16 @@
-// Tauri対応ビューマネージャー - テンプレート文字列アプローチ
+// Tauri対応ビューマネージャー - 分離されたテンプレートアプローチ
+import { viewATemplate } from './views/view-a.js';
+import { viewBTemplate } from './views/view-b.js';
+import { viewCTemplate } from './views/view-c.js';
+
 export class ViewManager {
   constructor() {
     this.currentView = 'main';
+    // 分離されたテンプレートファイルから動的に構築
     this.viewTemplates = {
-      a: `
-        <h2 class="text-center">ビューA</h2>
-        <div class="text-center mb-4">
-          <div class="text-lg font-bold" style="color: #2563eb;">A</div>
-        </div>
-        <div class="text-center">
-          <button id="popButtonA" class="popup-button">POP</button>
-        </div>
-      `,
-      b: `
-        <h2 class="text-center">ビューB</h2>
-        <div class="text-center mb-4">
-          <div class="text-lg font-bold" style="color: #9333ea;">B</div>
-        </div>
-        <div class="text-center">
-          <button id="popButtonB" class="popup-button">POP</button>
-        </div>
-      `,
-      c: `
-        <h2 class="text-center">ビューC</h2>
-        <div class="text-center mb-4">
-          <div class="text-lg font-bold" style="color: #db2777;">C</div>
-        </div>
-        <div class="text-center">
-          <button id="popButtonC" class="popup-button">POP</button>
-        </div>
-      `
+      a: viewATemplate,
+      b: viewBTemplate,
+      c: viewCTemplate
     };
   }
 
@@ -96,9 +77,27 @@ export class ViewManager {
     }
   }
 
-  // 新しいビューテンプレートを追加
+  // 新しいビューテンプレートを追加（動的テンプレート追加用）
   addViewTemplate(viewName, template) {
     this.viewTemplates[viewName] = template;
+  }
+
+  // 分離されたテンプレートファイルからテンプレートを動的ロード
+  async loadViewTemplate(viewName, modulePath) {
+    try {
+      const module = await import(modulePath);
+      const templateKey = `view${viewName.toUpperCase()}Template`;
+      if (module[templateKey]) {
+        this.viewTemplates[viewName] = module[templateKey];
+        return true;
+      } else {
+        console.error(`Template ${templateKey} not found in module ${modulePath}`);
+        return false;
+      }
+    } catch (error) {
+      console.error(`Failed to load template from ${modulePath}:`, error);
+      return false;
+    }
   }
 
   // 現在のビューを取得
