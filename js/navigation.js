@@ -1,4 +1,5 @@
 import { viewManager } from './view-loader.js';
+import { focusManager } from './focus-manager.js';
 
 // タブボタンの設定
 export function setupTabButtons() {
@@ -50,7 +51,7 @@ export function switchView(viewName) {
   
   // 新しいビューとタブをアクティブにする
   const newView = document.getElementById(`view-${viewName}`);
-  const newTab = document.querySelector(`.nav-tab[data-view="${viewName}"]`);
+  const newTab = document.querySelector(`.nav-tab[data-view=\"${viewName}\"]`);
   
   if (newView) {
     // メインビュー以外の場合はテンプレートを描画
@@ -86,4 +87,7 @@ export function switchView(viewName) {
       newView.classList.remove('fade-in');
     }, 300); // アニメーション終了後にクラスを除去
   }
+
+  // 🔧 新機能: ビュー切り替え後に適切な要素に自動フォーカスを設定
+  focusManager.setInitialFocus(viewName);
 }
