@@ -8,6 +8,28 @@
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/layout.css">
     <link rel="stylesheet" href="css/utilities.css">
+    
+    <!-- ログシステム初期化 -->
+    <script type="module">
+      // tauri-plugin-log-api をインポートしてWebviewコンソールに接続
+      import { attachConsole, info } from "tauri-plugin-log-api";
+      
+      // アプリケーション開始時にログを初期化
+      try {
+        const detach = await attachConsole();
+        console.log('Log system initialized - console attached');
+        info('Main window loaded - JavaScript log system active');
+        
+        // アプリケーション終了時にデタッチ（必要に応じて）
+        window.addEventListener('beforeunload', () => {
+          if (detach) {
+            detach();
+          }
+        });
+      } catch (error) {
+        console.error('Failed to initialize log system:', error);
+      }
+    </script>
   </head>
 
   <body>

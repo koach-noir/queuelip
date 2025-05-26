@@ -1,6 +1,8 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use tauri::{Manager, RunEvent};
+use tauri_plugin_log::LogTarget;
+use log::{info, warn, error, debug};
 
 // miniウィンドウの設定オプション
 const MINI_WINDOW_CONFIG: MiniWindowConfig = MiniWindowConfig {
@@ -17,143 +19,138 @@ struct MiniWindowConfig {
     height: f64,
 }
 
-// メインウィンドウを再表示するコマンド
+// メインウィンドウを表示するコマンド（Hide/Showパターン）
 #[tauri::command]
-async fn reopen_main_window(app_handle: tauri::AppHandle) -> Result<(), String> {
-    println!("=== reopen_main_window called ===");
+async fn show_main_window(app_handle: tauri::AppHandle) -> Result<(), String> {
+    info!("=== show_main_window called ===");
     
-    // 既存のメインウィンドウがあれば閉じる
-    if let Some(existing_window) = app_handle.get_window("main") {
-        println!("Found existing main window, closing it");
-        existing_window.close().map_err(|e| e.to_string())?;
+    // メインウィンドウを取得
+    if let Some(main_window) = app_handle.get_window("main") {
+        // 既存のメインウィンドウを表示
+        main_window.show().map_err(|e| {
+            error!("Failed to show main window: {}", e);
+            e.to_string()
+        })?;
+        main_window.set_focus().map_err(|e| {
+            warn!("Failed to set focus on main window: {}", e);
+            e.to_string()
+        })?;
+        main_window.unminimize().map_err(|e| {
+            warn!("Failed to unminimize main window: {}", e);
+            e.to_string()
+        })?;
+        
+        info!("Main window shown successfully");
     } else {
-        println!("No existing main window found");
+        error!("Main window not found");
+        return Err("Main window not found".to_string());
     }
-    
-    println!("Creating new main window...");
-    
-    // メインウィンドウを再作成
-    let main_window = tauri::WindowBuilder::new(
-        &app_handle,
-        "main", // ユニークラベル
-        tauri::WindowUrl::App("index.html".into())
-    )
-    .title("Queuelip")
-    .decorations(true)     // タイトルバー有り
-    .resizable(true)
-    .inner_size(800.0, 600.0)
-    .transparent(true)
-    .center()              // 画面中央に表示
-    .visible(true)         // 明示的に表示
-    .focus()               // フォーカスを設定
-    .build()
-    .map_err(|e| {
-        println!("Error creating main window: {}", e);
-        e.to_string()
-    })?;
-    
-    // ウィンドウを明示的に前面に持ってくる
-    if let Err(e) = main_window.show() {
-        println!("Warning: Failed to show window: {}", e);
-    }
-    if let Err(e) = main_window.set_focus() {
-        println!("Warning: Failed to set focus: {}", e);
-    }
-    if let Err(e) = main_window.unminimize() {
-        println!("Warning: Failed to unminimize: {}", e);
-    }
-    
-    println!("Main window created and shown successfully");
-    
-    // メインウィンドウが閉じられた時のイベントハンドラを設定
-    let app_handle_clone = app_handle.clone();
-    main_window.on_window_event(move |event| {
-        match event {
-            tauri::WindowEvent::CloseRequested { .. } => {
-                println!("Main window close requested, exiting application");
-                // メインウィンドウが閉じられたらアプリケーション全体を終了
-                app_handle_clone.exit(0);
-            },
-            _ => {}
-        }
-    });
-    
-    println!("Main window reopened successfully");
     
     Ok(())
 }
 
-// miniウィンドウを開くコマンド（メインウィンドウを閉じる機能付き）
+// メインウィンドウを非表示にするコマンド
+#[tauri::command]
+async fn hide_main_window(app_handle: tauri::AppHandle) -> Result<(), String> {
+    info!("=== hide_main_window called ===");
+    
+    if let Some(main_window) = app_handle.get_window("main") {
+        main_window.hide().map_err(|e| {
+            error!("Failed to hide main window: {}", e);
+            e.to_string()
+        })?;
+        info!("Main window hidden successfully");
+    } else {
+        warn!("Main window not found for hiding");
+    }
+    
+    Ok(())
+}
+
+// miniウィンドウを開くコマンド（メインウィンドウを非表示にする）
 #[tauri::command]
 async fn open_mini_window(app_handle: tauri::AppHandle) -> Result<(), String> {
-    println!("=== open_mini_window called ===");
+    info!("=== open_mini_window called ===");
     
-    // 既存のminiウィンドウがあれば閉じる
-    if let Some(existing_window) = app_handle.get_window("mini") {
-        existing_window.close().map_err(|e| e.to_string())?;
-    }
-    
-    // miniウィンドウを作成
-    let mini_window = tauri::WindowBuilder::new(
-        &app_handle,
-        "mini", // ユニークラベル
-        tauri::WindowUrl::App("mini.html".into())
-    )
-    .title("Mini View")
-    .decorations(false)     // ベゼルレス
-    .always_on_top(MINI_WINDOW_CONFIG.always_on_top)
-    .resizable(MINI_WINDOW_CONFIG.resizable)
-    .inner_size(MINI_WINDOW_CONFIG.width, MINI_WINDOW_CONFIG.height)
-    .center()              // 画面中央に表示
-    .visible(true)         // 明示的に表示
-    .build()
-    .map_err(|e| e.to_string())?;
-    
-    // miniウィンドウが閉じられた時のイベントハンドラを設定
-    let app_handle_clone = app_handle.clone();
-    mini_window.on_window_event(move |event| {
-        match event {
-            tauri::WindowEvent::CloseRequested { .. } => {
-                println!("=== Mini window close event detected ===");
-                // miniウィンドウが閉じられたらメインウィンドウを再表示
-                let app_handle_for_spawn = app_handle_clone.clone();
-                tauri::async_runtime::spawn(async move {
-                    println!("Spawning reopen_main_window task...");
-                    if let Err(e) = reopen_main_window(app_handle_for_spawn).await {
-                        println!("Error reopening main window: {}", e);
-                    } else {
-                        println!("reopen_main_window task completed successfully");
+    // 既存のminiウィンドウがあれば表示
+    if let Some(existing_mini) = app_handle.get_window("mini") {
+        info!("Mini window already exists, showing it");
+        existing_mini.show().map_err(|e| e.to_string())?;
+        existing_mini.set_focus().map_err(|e| e.to_string())?;
+    } else {
+        // miniウィンドウを新規作成
+        info!("Creating new mini window");
+        let mini_window = tauri::WindowBuilder::new(
+            &app_handle,
+            "mini", // ユニークラベル
+            tauri::WindowUrl::App("mini.html".into())
+        )
+        .title("Mini View")
+        .decorations(false)     // ベゼルレス
+        .always_on_top(MINI_WINDOW_CONFIG.always_on_top)
+        .resizable(MINI_WINDOW_CONFIG.resizable)
+        .inner_size(MINI_WINDOW_CONFIG.width, MINI_WINDOW_CONFIG.height)
+        .center()              // 画面中央に表示
+        .visible(true)         // 明示的に表示
+        .build()
+        .map_err(|e| {
+            error!("Failed to create mini window: {}", e);
+            e.to_string()
+        })?;
+        
+        // miniウィンドウが閉じられた時のイベントハンドラを設定
+        let app_handle_clone = app_handle.clone();
+        mini_window.on_window_event(move |event| {
+            match event {
+                tauri::WindowEvent::CloseRequested { api, .. } => {
+                    info!("=== Mini window close event detected ===");
+                    // ウィンドウを非表示にして閉じることを防ぐ
+                    if let Err(e) = event.window().hide() {
+                        error!("Failed to hide mini window: {}", e);
                     }
-                });
-            },
-            _ => {}
-        }
-    });
-    
-    println!("Mini window opened successfully");
-    
-    // メインウィンドウを閉じる
-    if let Some(main_window) = app_handle.get_window("main") {
-        main_window.close().map_err(|e| e.to_string())?;
-        println!("Main window closed successfully");
+                    api.prevent_close();
+                    
+                    // メインウィンドウを表示
+                    let app_handle_for_show = app_handle_clone.clone();
+                    tauri::async_runtime::spawn(async move {
+                        info!("Spawning show_main_window task...");
+                        if let Err(e) = show_main_window(app_handle_for_show).await {
+                            error!("Error showing main window: {}", e);
+                        } else {
+                            info!("show_main_window task completed successfully");
+                        }
+                    });
+                },
+                _ => {}
+            }
+        });
+        
+        info!("Mini window created successfully");
     }
+    
+    // メインウィンドウを非表示にする
+    hide_main_window(app_handle).await?;
     
     Ok(())
 }
 
-// miniウィンドウを閉じるコマンド（メインウィンドウ再表示付き）
+// miniウィンドウを閉じるコマンド（Hide/Showパターン）
 #[tauri::command]
 async fn close_mini_window(app_handle: tauri::AppHandle) -> Result<(), String> {
-    println!("=== close_mini_window called (should not be used in current implementation) ===");
+    info!("=== close_mini_window called ===");
     
     if let Some(mini_window) = app_handle.get_window("mini") {
-        mini_window.close().map_err(|e| e.to_string())?;
-        println!("Mini window closed successfully");
+        mini_window.hide().map_err(|e| {
+            error!("Failed to hide mini window: {}", e);
+            e.to_string()
+        })?;
+        info!("Mini window hidden successfully");
+    } else {
+        warn!("Mini window not found for closing");
     }
     
-    // miniウィンドウが閉じられたらメインウィンドウを再表示
-    println!("Calling reopen_main_window from close_mini_window...");
-    reopen_main_window(app_handle).await?;
+    // メインウィンドウを表示
+    show_main_window(app_handle).await?;
     
     Ok(())
 }
@@ -161,33 +158,46 @@ async fn close_mini_window(app_handle: tauri::AppHandle) -> Result<(), String> {
 // アプリケーションを強制終了する関数
 #[tauri::command]
 async fn exit_app(app_handle: tauri::AppHandle) -> Result<(), String> {
-    println!("Exiting application");
+    info!("Exiting application");
     app_handle.exit(0);
     Ok(())
 }
 
 fn main() {
     tauri::Builder::default()
+        // ログプラグインを設定
+        .plugin(
+            tauri_plugin_log::Builder::default()
+                .targets([
+                    LogTarget::LogDir,    // ファイルログ出力
+                    LogTarget::Stdout,    // 標準出力
+                    LogTarget::Webview,   // ウェブビューコンソール
+                ])
+                .build(),
+        )
         // コマンドを登録
         .invoke_handler(tauri::generate_handler![
             exit_app,
             open_mini_window,
             close_mini_window,
-            reopen_main_window
+            show_main_window,
+            hide_main_window
         ])
         // メインウィンドウの設定
         .setup(|app| {
+            info!("Application setup started");
+            
             // メインウィンドウのタイトル設定
             if let Some(main_window) = app.get_window("main") {
                 main_window.set_title("Queuelip")?;
-                println!("Main window initialized with label: {}", main_window.label());
+                info!("Main window initialized with label: {}", main_window.label());
                 
                 // メインウィンドウが閉じられたときのイベントハンドラ
                 let app_handle = app.handle().clone();
                 main_window.on_window_event(move |event| {
                     match event {
                         tauri::WindowEvent::CloseRequested { .. } => {
-                            println!("Main window close requested, exiting application");
+                            info!("Main window close requested, exiting application");
                             // メインウィンドウが閉じられたらアプリケーション全体を終了
                             app_handle.exit(0);
                         },
@@ -195,8 +205,10 @@ fn main() {
                     }
                 });
             } else {
-                println!("Warning: Main window not found");
+                error!("Warning: Main window not found during setup");
             }
+            
+            info!("Application setup completed successfully");
             Ok(())
         })
         // イベントループ処理
@@ -205,7 +217,7 @@ fn main() {
         .run(|_app_handle, event| match event {
             // アプリケーション終了時
             RunEvent::ExitRequested { .. } => {
-                println!("Application exit requested");
+                info!("Application exit requested");
                 // 終了を許可
                 _app_handle.exit(0);
             },
