@@ -20,10 +20,19 @@ struct MiniWindowConfig {
 // メインウィンドウを再表示するコマンド
 #[tauri::command]
 async fn reopen_main_window(app_handle: tauri::AppHandle) -> Result<(), String> {
+    println!("=== reopen_main_window called ===");
+    
     // 既存のメインウィンドウがあれば閉じる
     if let Some(existing_window) = app_handle.get_window("main") {
+        println!("Found existing main window, closing it");
         existing_window.close().map_err(|e| e.to_string())?;
+        // 少し待機してウィンドウが確実に閉じられるのを待つ
+        tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
+    } else {
+        println!("No existing main window found");
     }
+    
+    println!("Creating new main window...");
     
     // メインウィンドウを再作成
     let main_window = tauri::WindowBuilder::new(
@@ -36,8 +45,21 @@ async fn reopen_main_window(app_handle: tauri::AppHandle) -> Result<(), String> 
     .resizable(true)
     .inner_size(800.0, 600.0)
     .transparent(true)
+    .center()              // 画面中央に表示
+    .visible(true)         // 明示的に表示
+    .focus()               // フォーカスを設定
     .build()
-    .map_err(|e| e.to_string())?;
+    .map_err(|e| {
+        println!("Error creating main window: {}", e);
+        e.to_string()
+    })?;
+    
+    // ウィンドウを明示的に前面に持ってくる
+    main_window.show().map_err(|e| e.to_string())?;
+    main_window.set_focus().map_err(|e| e.to_string())?;
+    main_window.unminimize().map_err(|e| e.to_string())?;
+    
+    println!("Main window created and shown successfully");
     
     // メインウィンドウが閉じられた時のイベントハンドラを設定
     let app_handle_clone = app_handle.clone();
@@ -60,6 +82,8 @@ async fn reopen_main_window(app_handle: tauri::AppHandle) -> Result<(), String> 
 // miniウィンドウを開くコマンド（メインウィンドウを閉じる機能付き）
 #[tauri::command]
 async fn open_mini_window(app_handle: tauri::AppHandle) -> Result<(), String> {
+    println!("=== open_mini_window called ===");
+    
     // 既存のminiウィンドウがあれば閉じる
     if let Some(existing_window) = app_handle.get_window("mini") {
         existing_window.close().map_err(|e| e.to_string())?;
@@ -76,6 +100,8 @@ async fn open_mini_window(app_handle: tauri::AppHandle) -> Result<(), String> {
     .always_on_top(MINI_WINDOW_CONFIG.always_on_top)
     .resizable(MINI_WINDOW_CONFIG.resizable)
     .inner_size(MINI_WINDOW_CONFIG.width, MINI_WINDOW_CONFIG.height)
+    .center()              // 画面中央に表示
+    .visible(true)         // 明示的に表示
     .build()
     .map_err(|e| e.to_string())?;
     
@@ -84,15 +110,18 @@ async fn open_mini_window(app_handle: tauri::AppHandle) -> Result<(), String> {
     mini_window.on_window_event(move |event| {
         match event {
             tauri::WindowEvent::CloseRequested { .. } => {
-                println!("Mini window close requested, reopening main window");
+                println!("=== Mini window close event detected ===");
                 // miniウィンドウが閉じられたらメインウィンドウを再表示
                 let app_handle_for_spawn = app_handle_clone.clone();
                 let app_handle_for_exit = app_handle_clone.clone();
                 tauri::async_runtime::spawn(async move {
+                    println!("Spawning reopen_main_window task...");
                     if let Err(e) = reopen_main_window(app_handle_for_spawn).await {
                         println!("Error reopening main window: {}", e);
                         // エラーが発生した場合はアプリを終了
                         app_handle_for_exit.exit(0);
+                    } else {
+                        println!("reopen_main_window task completed successfully");
                     }
                 });
             },
@@ -114,13 +143,18 @@ async fn open_mini_window(app_handle: tauri::AppHandle) -> Result<(), String> {
 // miniウィンドウを閉じるコマンド（メインウィンドウ再表示付き）
 #[tauri::command]
 async fn close_mini_window(app_handle: tauri::AppHandle) -> Result<(), String> {
+    println!("=== close_mini_window called ===");
+    
     if let Some(mini_window) = app_handle.get_window("mini") {
         mini_window.close().map_err(|e| e.to_string())?;
         println!("Mini window closed successfully");
     }
     
+    // 少し待機してからメインウィンドウを再表示
+    tokio::time::sleep(tokio::time::Duration::from_millis(200)).await;
+    
     // miniウィンドウが閉じられたらメインウィンドウを再表示
-    println!("Reopening main window after mini window close");
+    println!("Calling reopen_main_window from close_mini_window...");
     reopen_main_window(app_handle).await?;
     
     Ok(())
