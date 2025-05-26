@@ -1,6 +1,8 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use tauri::{Manager, RunEvent};
+use std::thread;
+use std::time::Duration;
 
 // miniウィンドウの設定オプション
 const MINI_WINDOW_CONFIG: MiniWindowConfig = MiniWindowConfig {
@@ -27,7 +29,7 @@ async fn reopen_main_window(app_handle: tauri::AppHandle) -> Result<(), String> 
         println!("Found existing main window, closing it");
         existing_window.close().map_err(|e| e.to_string())?;
         // 少し待機してウィンドウが確実に閉じられるのを待つ
-        tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
+        thread::sleep(Duration::from_millis(100));
     } else {
         println!("No existing main window found");
     }
@@ -116,6 +118,8 @@ async fn open_mini_window(app_handle: tauri::AppHandle) -> Result<(), String> {
                 let app_handle_for_exit = app_handle_clone.clone();
                 tauri::async_runtime::spawn(async move {
                     println!("Spawning reopen_main_window task...");
+                    // 少し待機してからメインウィンドウを開く
+                    thread::sleep(Duration::from_millis(300));
                     if let Err(e) = reopen_main_window(app_handle_for_spawn).await {
                         println!("Error reopening main window: {}", e);
                         // エラーが発生した場合はアプリを終了
@@ -151,7 +155,7 @@ async fn close_mini_window(app_handle: tauri::AppHandle) -> Result<(), String> {
     }
     
     // 少し待機してからメインウィンドウを再表示
-    tokio::time::sleep(tokio::time::Duration::from_millis(200)).await;
+    thread::sleep(Duration::from_millis(300));
     
     // miniウィンドウが閉じられたらメインウィンドウを再表示
     println!("Calling reopen_main_window from close_mini_window...");
