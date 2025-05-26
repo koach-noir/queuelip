@@ -1,6 +1,6 @@
 // バージョン情報と最終更新日時の管理
-export const APP_VERSION = '0.1.129';
-export const LAST_UPDATE = '2025年05月26日 09:44:00';
+export const APP_VERSION = '0.1.130';
+export const LAST_UPDATE = '2025年05月26日 09:53:00';
 
 // バージョン情報を画面に表示する
 export function displayVersionInfo() {
