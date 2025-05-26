@@ -2,7 +2,7 @@
 
 use tauri::{Manager, RunEvent};
 use tauri_plugin_log::LogTarget;
-use log::{info, warn, error, debug};
+use log::{info, warn, error};
 
 // miniウィンドウの設定オプション
 const MINI_WINDOW_CONFIG: MiniWindowConfig = MiniWindowConfig {
@@ -104,9 +104,11 @@ async fn open_mini_window(app_handle: tauri::AppHandle) -> Result<(), String> {
             match event {
                 tauri::WindowEvent::CloseRequested { api, .. } => {
                     info!("=== Mini window close event detected ===");
-                    // ウィンドウを非表示にして閉じることを防ぐ
-                    if let Err(e) = event.window().hide() {
-                        error!("Failed to hide mini window: {}", e);
+                    // miniウィンドウを非表示にして閉じることを防ぐ
+                    if let Some(mini_window) = app_handle_clone.get_window("mini") {
+                        if let Err(e) = mini_window.hide() {
+                            error!("Failed to hide mini window: {}", e);
+                        }
                     }
                     api.prevent_close();
                     
