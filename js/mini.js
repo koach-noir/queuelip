@@ -1,6 +1,6 @@
 /**
  * Mini Window JavaScript
- * miniウィンドウ用のロジック
+ * miniウィンドウ用のロジック（Hide/Showパターン対応）
  */
 
 // Tauri APIのインポート
@@ -66,10 +66,11 @@ function setupEventListeners() {
 
 /**
  * ウィンドウを閉じる処理
+ * 注意: Hide/Showパターンに変更 - close_mini_windowコマンドを呼び出す
  */
 async function handleCloseWindow() {
     try {
-        console.log('Closing mini window...');
+        console.log('=== JavaScript: Closing mini window (Hide/Show pattern) ===');
         
         // 閉じるアニメーション
         if (miniContainer) {
@@ -81,19 +82,24 @@ async function handleCloseWindow() {
         // 少し待ってからRustコマンドを実行
         setTimeout(async () => {
             try {
+                console.log('=== JavaScript: Calling close_mini_window command ===');
+                // close_mini_windowコマンドが自動的にminiウィンドウを非表示にしてメインウィンドウを表示
                 await invoke('close_mini_window');
-                console.log('Mini window closed successfully');
+                console.log('close_mini_window command completed successfully');
             } catch (error) {
-                console.error('Error closing mini window:', error);
-                // エラーが発生してもウィンドウは閉じる
-                window.close();
+                console.error('Error calling close_mini_window:', error);
+                // エラーが発生した場合のフォールバック
+                try {
+                    await invoke('show_main_window');
+                    console.log('Fallback: show_main_window called successfully');
+                } catch (fallbackError) {
+                    console.error('Fallback failed:', fallbackError);
+                }
             }
         }, 200);
         
     } catch (error) {
         console.error('Error in handleCloseWindow:', error);
-        // フォールバック: 直接ウィンドウを閉じる
-        window.close();
     }
 }
 
