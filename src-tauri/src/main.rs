@@ -1,8 +1,6 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use tauri::{Manager, RunEvent};
-use std::thread;
-use std::time::Duration;
 
 // miniウィンドウの設定オプション
 const MINI_WINDOW_CONFIG: MiniWindowConfig = MiniWindowConfig {
@@ -28,8 +26,6 @@ async fn reopen_main_window(app_handle: tauri::AppHandle) -> Result<(), String> 
     if let Some(existing_window) = app_handle.get_window("main") {
         println!("Found existing main window, closing it");
         existing_window.close().map_err(|e| e.to_string())?;
-        // 少し待機してウィンドウが確実に閉じられるのを待つ
-        thread::sleep(Duration::from_millis(100));
     } else {
         println!("No existing main window found");
     }
@@ -57,9 +53,15 @@ async fn reopen_main_window(app_handle: tauri::AppHandle) -> Result<(), String> 
     })?;
     
     // ウィンドウを明示的に前面に持ってくる
-    main_window.show().map_err(|e| e.to_string())?;
-    main_window.set_focus().map_err(|e| e.to_string())?;
-    main_window.unminimize().map_err(|e| e.to_string())?;
+    if let Err(e) = main_window.show() {
+        println!("Warning: Failed to show window: {}", e);
+    }
+    if let Err(e) = main_window.set_focus() {
+        println!("Warning: Failed to set focus: {}", e);
+    }
+    if let Err(e) = main_window.unminimize() {
+        println!("Warning: Failed to unminimize: {}", e);
+    }
     
     println!("Main window created and shown successfully");
     
@@ -115,15 +117,10 @@ async fn open_mini_window(app_handle: tauri::AppHandle) -> Result<(), String> {
                 println!("=== Mini window close event detected ===");
                 // miniウィンドウが閉じられたらメインウィンドウを再表示
                 let app_handle_for_spawn = app_handle_clone.clone();
-                let app_handle_for_exit = app_handle_clone.clone();
                 tauri::async_runtime::spawn(async move {
                     println!("Spawning reopen_main_window task...");
-                    // 少し待機してからメインウィンドウを開く
-                    thread::sleep(Duration::from_millis(300));
                     if let Err(e) = reopen_main_window(app_handle_for_spawn).await {
                         println!("Error reopening main window: {}", e);
-                        // エラーが発生した場合はアプリを終了
-                        app_handle_for_exit.exit(0);
                     } else {
                         println!("reopen_main_window task completed successfully");
                     }
@@ -147,15 +144,12 @@ async fn open_mini_window(app_handle: tauri::AppHandle) -> Result<(), String> {
 // miniウィンドウを閉じるコマンド（メインウィンドウ再表示付き）
 #[tauri::command]
 async fn close_mini_window(app_handle: tauri::AppHandle) -> Result<(), String> {
-    println!("=== close_mini_window called ===");
+    println!("=== close_mini_window called (should not be used in current implementation) ===");
     
     if let Some(mini_window) = app_handle.get_window("mini") {
         mini_window.close().map_err(|e| e.to_string())?;
         println!("Mini window closed successfully");
     }
-    
-    // 少し待機してからメインウィンドウを再表示
-    thread::sleep(Duration::from_millis(300));
     
     // miniウィンドウが閉じられたらメインウィンドウを再表示
     println!("Calling reopen_main_window from close_mini_window...");
