@@ -66,11 +66,11 @@ function setupEventListeners() {
 
 /**
  * ウィンドウを閉じる処理
- * 注意: miniウィンドウが閉じられると、自動的にメインウィンドウが再表示されます
+ * 注意: ウィンドウを直接閉じて、Rust側のイベントハンドラにメインウィンドウ再表示を任せる
  */
 async function handleCloseWindow() {
     try {
-        console.log('Closing mini window...');
+        console.log('=== JavaScript: Closing mini window ===');
         
         // 閉じるアニメーション
         if (miniContainer) {
@@ -79,17 +79,11 @@ async function handleCloseWindow() {
             miniContainer.style.transform = 'scale(0.9)';
         }
         
-        // 少し待ってからRustコマンドを実行
-        setTimeout(async () => {
-            try {
-                // close_mini_windowコマンドが自動的にメインウィンドウを再表示します
-                await invoke('close_mini_window');
-                console.log('Mini window closed successfully - main window will reopen');
-            } catch (error) {
-                console.error('Error closing mini window:', error);
-                // エラーが発生してもウィンドウは閉じる
-                window.close();
-            }
+        // 少し待ってからウィンドウを閉じる
+        setTimeout(() => {
+            console.log('=== JavaScript: Calling window.close() ===');
+            // ウィンドウを直接閉じる（Rust側のon_window_eventが自動的にメインウィンドウを再表示）
+            window.close();
         }, 200);
         
     } catch (error) {
