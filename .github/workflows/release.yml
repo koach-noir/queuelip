@@ -53,7 +53,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [macos-latest, windows-latest]
+        platform: [windows-latest]
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -94,7 +94,6 @@ jobs:
 
       # Windows環境の最適化
       - name: Configure Windows build environment
-        if: matrix.platform == 'windows-latest'
         run: |
           echo "RUSTFLAGS=-C target-feature=+crt-static" >> $GITHUB_ENV
           echo "CARGO_INCREMENTAL=0" >> $GITHUB_ENV
@@ -114,9 +113,8 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.platform == 'macos-latest' && 'Queuelip-macos-bld' || 'Queuelip-windows-bld' }}
+          name: Queuelip-windows-bld
           path: |
-            src-tauri/target/release/bundle/dmg/*.dmg
             src-tauri/target/release/bundle/msi/*.msi
             src-tauri/target/release/*.exe
           if-no-files-found: ignore

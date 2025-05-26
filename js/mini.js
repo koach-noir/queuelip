@@ -66,6 +66,7 @@ function setupEventListeners() {
 
 /**
  * ウィンドウを閉じる処理
+ * 注意: miniウィンドウが閉じられると、自動的にメインウィンドウが再表示されます
  */
 async function handleCloseWindow() {
     try {
@@ -81,8 +82,9 @@ async function handleCloseWindow() {
         // 少し待ってからRustコマンドを実行
         setTimeout(async () => {
             try {
+                // close_mini_windowコマンドが自動的にメインウィンドウを再表示します
                 await invoke('close_mini_window');
-                console.log('Mini window closed successfully');
+                console.log('Mini window closed successfully - main window will reopen');
             } catch (error) {
                 console.error('Error closing mini window:', error);
                 // エラーが発生してもウィンドウは閉じる

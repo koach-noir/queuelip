@@ -17,6 +17,46 @@ struct MiniWindowConfig {
     height: f64,
 }
 
+// メインウィンドウを再表示するコマンド
+#[tauri::command]
+async fn reopen_main_window(app_handle: tauri::AppHandle) -> Result<(), String> {
+    // 既存のメインウィンドウがあれば閉じる
+    if let Some(existing_window) = app_handle.get_window("main") {
+        existing_window.close().map_err(|e| e.to_string())?;
+    }
+    
+    // メインウィンドウを再作成
+    let main_window = tauri::WindowBuilder::new(
+        &app_handle,
+        "main", // ユニークラベル
+        tauri::WindowUrl::App("index.html".into())
+    )
+    .title("Queuelip")
+    .decorations(true)     // タイトルバー有り
+    .resizable(true)
+    .inner_size(800.0, 600.0)
+    .transparent(true)
+    .build()
+    .map_err(|e| e.to_string())?;
+    
+    // メインウィンドウが閉じられた時のイベントハンドラを設定
+    let app_handle_clone = app_handle.clone();
+    main_window.on_window_event(move |event| {
+        match event {
+            tauri::WindowEvent::CloseRequested { .. } => {
+                println!("Main window close requested, exiting application");
+                // メインウィンドウが閉じられたらアプリケーション全体を終了
+                app_handle_clone.exit(0);
+            },
+            _ => {}
+        }
+    });
+    
+    println!("Main window reopened successfully");
+    
+    Ok(())
+}
+
 // miniウィンドウを開くコマンド（メインウィンドウを閉じる機能付き）
 #[tauri::command]
 async fn open_mini_window(app_handle: tauri::AppHandle) -> Result<(), String> {
@@ -44,9 +84,16 @@ async fn open_mini_window(app_handle: tauri::AppHandle) -> Result<(), String> {
     mini_window.on_window_event(move |event| {
         match event {
             tauri::WindowEvent::CloseRequested { .. } => {
-                println!("Mini window close requested, exiting application");
-                // miniウィンドウが閉じられたらアプリケーション全体を終了
-                app_handle_clone.exit(0);
+                println!("Mini window close requested, reopening main window");
+                // miniウィンドウが閉じられたらメインウィンドウを再表示
+                let app_handle_inner = app_handle_clone.clone();
+                tauri::async_runtime::spawn(async move {
+                    if let Err(e) = reopen_main_window(app_handle_inner).await {
+                        println!("Error reopening main window: {}", e);
+                        // エラーが発生した場合はアプリを終了
+                        app_handle_clone.exit(0);
+                    }
+                });
             },
             _ => {}
         }
@@ -63,7 +110,7 @@ async fn open_mini_window(app_handle: tauri::AppHandle) -> Result<(), String> {
     Ok(())
 }
 
-// miniウィンドウを閉じるコマンド（アプリケーション終了付き）
+// miniウィンドウを閉じるコマンド（メインウィンドウ再表示付き）
 #[tauri::command]
 async fn close_mini_window(app_handle: tauri::AppHandle) -> Result<(), String> {
     if let Some(mini_window) = app_handle.get_window("mini") {
@@ -71,9 +118,9 @@ async fn close_mini_window(app_handle: tauri::AppHandle) -> Result<(), String> {
         println!("Mini window closed successfully");
     }
     
-    // miniウィンドウが閉じられたらアプリケーション全体を終了
-    println!("Exiting application after mini window close");
-    app_handle.exit(0);
+    // miniウィンドウが閉じられたらメインウィンドウを再表示
+    println!("Reopening main window after mini window close");
+    reopen_main_window(app_handle).await?;
     
     Ok(())
 }
@@ -92,7 +139,8 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             exit_app,
             open_mini_window,
-            close_mini_window
+            close_mini_window,
+            reopen_main_window
         ])
         // メインウィンドウの設定
         .setup(|app| {
