@@ -10,10 +10,14 @@ const { invoke } = window.__TAURI__.tauri;
 let closeButton;
 let dashboardContainer;
 
+// グローバル変数
+let currentContext = 'default';
+
 // 初期化
 document.addEventListener('DOMContentLoaded', function() {
     initializeDashboard();
     setupEventListeners();
+    setupContextListener();
     console.log('Dashboard window JavaScript initialized');
 });
 
@@ -62,6 +66,20 @@ function setupEventListeners() {
     // ウィンドウのフォーカス管理
     window.addEventListener('blur', handleWindowBlur);
     window.addEventListener('focus', handleWindowFocus);
+}
+
+/**
+ * コンテキストリスナーの設定
+ */
+function setupContextListener() {
+    // Tauriイベントリスナーを設定
+    if (window.__TAURI__ && window.__TAURI__.event) {
+        window.__TAURI__.event.listen('dashboard-context', (event) => {
+            console.log('Context received:', event.payload);
+            currentContext = event.payload;
+            loadContentByContext(currentContext);
+        });
+    }
 }
 
 /**
@@ -184,7 +202,210 @@ style.textContent = `
 document.head.appendChild(style);
 
 // エクスポート（将来のモジュール化用）
+/**
+ * コンテキストに応じたコンテンツを読み込む
+ */
+function loadContentByContext(context) {
+    const contentContainer = document.querySelector('.dashboard-content');
+    if (!contentContainer) return;
+    
+    let content = '';
+    
+    switch(context) {
+        case 'view-a':
+            content = generateClipboardMonitorContent();
+            startClipboardMonitoring();
+            break;
+        case 'view-b':
+            content = generateClockContent();
+            startClock();
+            break;
+        default:
+            content = generateDefaultContent();
+            break;
+    }
+    
+    contentContainer.innerHTML = content;
+    console.log(`Content loaded for context: ${context}`);
+}
+
+/**
+ * ビューA用：クリップボード監視コンテンツ
+ */
+function generateClipboardMonitorContent() {
+    return `
+        <div class="dashboard-accordion">
+            <details open>
+                <summary>クリップボード監視</summary>
+                <div class="accordion-content">
+                    <p>最新のコピー内容:</p>
+                    <div id="clipboard-content" style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 5px; margin: 10px 0; font-family: monospace; white-space: pre-wrap; max-height: 150px; overflow-y: auto;">監視中...</div>
+                    <button id="refresh-clipboard" style="background: #3b82f6; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;">手動更新</button>
+                </div>
+            </details>
+        </div>
+        <div class="dashboard-accordion">
+            <details>
+                <summary>統計情報</summary>
+                <div class="accordion-content">
+                    <p>クリップボード使用状況:</p>
+                    <ul>
+                        <li>監視開始時刻: <span id="monitor-start-time">-</span></li>
+                        <li>更新回数: <span id="update-count">0</span></li>
+                        <li>最終更新: <span id="last-update">-</span></li>
+                    </ul>
+                </div>
+            </details>
+        </div>
+    `;
+}
+
+/**
+ * ビューB用：時計表示コンテンツ
+ */
+function generateClockContent() {
+    return `
+        <div class="dashboard-accordion">
+            <details open>
+                <summary>リアルタイム時計</summary>
+                <div class="accordion-content">
+                    <div style="text-align: center; margin: 20px 0;">
+                        <div id="current-time" style="font-size: 2em; font-weight: bold; color: #3b82f6; font-family: monospace;">--:--:--</div>
+                        <div id="current-date" style="font-size: 1.2em; color: #d1d5db; margin-top: 10px;">----/--/--</div>
+                    </div>
+                </div>
+            </details>
+        </div>
+        <div class="dashboard-accordion">
+            <details>
+                <summary>時間設定</summary>
+                <div class="accordion-content">
+                    <p>表示設定:</p>
+                    <ul>
+                        <li>フォーマット: 24時間表記</li>
+                        <li>タイムゾーン: JST (UTC+9)</li>
+                        <li>更新間隔: 1秒</li>
+                    </ul>
+                </div>
+            </details>
+        </div>
+    `;
+}
+
+/**
+ * デフォルトコンテンツ
+ */
+function generateDefaultContent() {
+    return `
+        <div class="dashboard-accordion">
+            <details open>
+                <summary>ダッシュボード</summary>
+                <div class="accordion-content">
+                    <p>ビューA または ビューB から開くと、専用コンテンツが表示されます。</p>
+                    <ul>
+                        <li>ビューA: クリップボード監視機能</li>
+                        <li>ビューB: リアルタイム時計表示</li>
+                    </ul>
+                </div>
+            </details>
+        </div>
+    `;
+}
+
+/**
+ * クリップボード監視開始
+ */
+function startClipboardMonitoring() {
+    const clipboardContent = document.getElementById('clipboard-content');
+    const updateCount = document.getElementById('update-count');
+    const lastUpdate = document.getElementById('last-update');
+    const monitorStartTime = document.getElementById('monitor-start-time');
+    const refreshButton = document.getElementById('refresh-clipboard');
+    
+    let count = 0;
+    
+    if (monitorStartTime) {
+        monitorStartTime.textContent = new Date().toLocaleTimeString();
+    }
+    
+    async function updateClipboard() {
+        try {
+            if (navigator.clipboard && navigator.clipboard.readText) {
+                const text = await navigator.clipboard.readText();
+                if (clipboardContent) {
+                    clipboardContent.textContent = text || '(空のクリップボード)';
+                }
+                count++;
+                if (updateCount) updateCount.textContent = count;
+                if (lastUpdate) lastUpdate.textContent = new Date().toLocaleTimeString();
+            }
+        } catch (error) {
+            if (clipboardContent) {
+                clipboardContent.textContent = 'クリップボードアクセスが許可されていません';
+            }
+        }
+    }
+    
+    // 初回実行
+    updateClipboard();
+    
+    // 3秒ごとに更新
+    const interval = setInterval(updateClipboard, 3000);
+    
+    // 手動更新ボタン
+    if (refreshButton) {
+        refreshButton.addEventListener('click', updateClipboard);
+    }
+    
+    // ウィンドウが非表示になったらクリア
+    window.addEventListener('beforeunload', () => {
+        clearInterval(interval);
+    });
+}
+
+/**
+ * 時計表示開始
+ */
+function startClock() {
+    const timeElement = document.getElementById('current-time');
+    const dateElement = document.getElementById('current-date');
+    
+    function updateClock() {
+        const now = new Date();
+        
+        if (timeElement) {
+            timeElement.textContent = now.toLocaleTimeString('ja-JP', {
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+        }
+        
+        if (dateElement) {
+            dateElement.textContent = now.toLocaleDateString('ja-JP', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                weekday: 'short'
+            });
+        }
+    }
+    
+    // 初回実行
+    updateClock();
+    
+    // 1秒ごとに更新
+    const interval = setInterval(updateClock, 1000);
+    
+    // ウィンドウが非表示になったらクリア
+    window.addEventListener('beforeunload', () => {
+        clearInterval(interval);
+    });
+}
+
 window.dashboardAPI = {
     close: handleCloseWindow,
-    applyOptions: applyWindowOptions
+    applyOptions: applyWindowOptions,
+    loadContent: loadContentByContext
 };

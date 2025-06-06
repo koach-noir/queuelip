@@ -24,16 +24,16 @@ export function initializeViewA() {
   if (popButton) {
     popButton.addEventListener('click', async function() {
       try {
-        console.log('POP button clicked - opening dashboard window');
+        console.log('POP button clicked - opening dashboard window (view-a context)');
         
         // ボタンの視覚的フィードバック
         popButton.disabled = true;
         popButton.textContent = 'OPENING...';
         
-        // Tauri APIを使用してダッシュボードウィンドウを開く
+        // Tauri APIを使用してダッシュボードウィンドウを開く（ビューAコンテキスト）
         if (window.__TAURI__ && window.__TAURI__.tauri) {
-          await window.__TAURI__.tauri.invoke('open_dashboard');
-          console.log('Dashboard window opened successfully');
+          await window.__TAURI__.tauri.invoke('open_dashboard', { context: 'view-a' });
+          console.log('Dashboard window opened successfully (view-a context)');
         } else {
           console.error('Tauri API not available');
           alert('Dashboard window feature requires Tauri environment');

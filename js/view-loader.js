@@ -1,6 +1,6 @@
 // Tauri対応ビューマネージャー - 分離されたテンプレートアプローチ
 import { viewATemplate, initializeViewA } from './views/view-a.js';
-import { viewBTemplate } from './views/view-b.js';
+import { viewBTemplate, initializeViewB } from './views/view-b.js';
 import { viewCTemplate } from './views/view-c.js';
 
 export class ViewManager {
@@ -16,7 +16,7 @@ export class ViewManager {
     // ビュー初期化関数のマップ
     this.viewInitializers = {
       a: initializeViewA,
-      b: null, // 将来の拡張用
+      b: initializeViewB,
       c: null  // 将来の拡張用
     };
   }
@@ -70,12 +70,12 @@ export class ViewManager {
     if (viewName === 'a' || viewName === 'b' || viewName === 'c') {
       const popButton = document.getElementById(`popButton${viewName.toUpperCase()}`);
       if (popButton) {
-        // ビューAの場合は新しい初期化関数を使用するため、ここでは設定しない
-        if (viewName === 'a') {
-          return; // initializeViewA()が処理する
+        // ビューA、Bの場合は新しい初期化関数を使用するため、ここでは設定しない
+        if (viewName === 'a' || viewName === 'b') {
+          return; // initializeViewA()またはinitializeViewB()が処理する
         }
         
-        // ビューB、Cの場合は従来の処理
+        // ビューCの場合は従来の処理
         popButton.addEventListener('click', (event) => this.handlePopClick(viewName, event));
       }
     }
@@ -87,8 +87,8 @@ export class ViewManager {
     
     console.log(`POP button clicked for view ${viewName.toUpperCase()}`);
     
-    // ビューB、C用の将来の拡張
-    if (viewName === 'b' || viewName === 'c') {
+    // ビューC用の拡張
+    if (viewName === 'c') {
       // Tauriのinvokeが利用可能な場合のみ実行
       if (window.__TAURI__ && window.__TAURI__.tauri) {
         try {

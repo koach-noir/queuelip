@@ -69,14 +69,18 @@ async fn hide_main_window(app_handle: tauri::AppHandle) -> Result<(), String> {
 
 // ダッシュボードウィンドウを開くコマンド（メインウィンドウを非表示にする）
 #[tauri::command]
-async fn open_dashboard(app_handle: tauri::AppHandle) -> Result<(), String> {
-    info!("=== open_dashboard called ===");
+async fn open_dashboard(app_handle: tauri::AppHandle, context: Option<String>) -> Result<(), String> {
+    let ctx = context.as_deref().unwrap_or("default");
+    info!("=== open_dashboard called with context: {} ===", ctx);
     
     // 既存のdashboardウィンドウがあれば表示
     if let Some(existing_dashboard) = app_handle.get_window("dashboard") {
         info!("Dashboard window already exists, showing it");
         existing_dashboard.show().map_err(|e| e.to_string())?;
         existing_dashboard.set_focus().map_err(|e| e.to_string())?;
+        
+        // コンテキスト情報をフロントエンドに送信
+        existing_dashboard.emit("dashboard-context", ctx).map_err(|e| e.to_string())?;
     } else {
         // dashboardウィンドウを新規作成
         info!("Creating new dashboard window");
@@ -127,7 +131,10 @@ async fn open_dashboard(app_handle: tauri::AppHandle) -> Result<(), String> {
             }
         });
         
-        info!("Mini window created successfully");
+        info!("Dashboard window created successfully");
+        
+        // 新規作成されたウィンドウにコンテキスト情報を送信
+        dashboard_window.emit("dashboard-context", ctx).map_err(|e| e.to_string())?;
     }
     
     // メインウィンドウを非表示にする
