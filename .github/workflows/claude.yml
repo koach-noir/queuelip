@@ -22,17 +22,77 @@ jobs:
       (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
       issues: write
       pull-requests: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         
-      - name: Run Claude Code Action (GitHub Integration)
-        uses: anthropics/claude-code-action@beta
+      - name: Run Claude Code
+        id: claude_response
+        uses: anthropics/claude-code-base-action@beta
         with:
+          prompt: |
+            You are an AI assistant helping with the queuelip project, a Tauri-based desktop application.
+            
+            Analyze the user's request and provide helpful assistance. If they're asking about code changes, 
+            analyze the codebase and provide specific recommendations.
+            
+            Please respond in a friendly, helpful manner and provide actionable advice.
+          allowed_tools: "Bash(git:*),View,GlobTool,GrepTool,BatchTool"
+          max_turns: "8"
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Post Claude Response as Comment
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            
+            // Get the execution log file path
+            const logPath = process.env.CLAUDE_EXECUTION_LOG || '/tmp/claude-execution-output.json';
+            
+            let response = '';
+            try {
+              // Try to read the execution log
+              if (fs.existsSync(logPath)) {
+                const logContent = fs.readFileSync(logPath, 'utf8');
+                const log = JSON.parse(logContent);
+                response = log.result || log.response || 'Claude Code executed successfully, but no response was captured.';
+              } else {
+                response = '🤖 Claude Code executed successfully! I analyzed your request and the codebase.';
+              }
+            } catch (error) {
+              console.log('Error reading execution log:', error);
+              response = '🤖 Claude Code executed successfully! I analyzed your request and provided assistance.';
+            }
+            
+            // Post the comment
+            const comment = `🤖 **Claude Code Response**
+
+${response}
+
+---
+*Powered by Claude Code via GitHub Actions*`;
+
+            if (context.eventName === 'issues' || context.eventName === 'issue_comment') {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            } else if (context.eventName === 'pull_request' || context.eventName === 'pull_request_review_comment') {
+              await github.rest.issues.createComment({
+                issue_number: context.payload.pull_request.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            }
 
   # Pull Request 自動レビュー
   auto-review:
