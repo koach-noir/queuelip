@@ -29,21 +29,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           anthropic_model: "claude-3-5-sonnet-20241022"
           timeout_minutes: 30
-          allowed_tools: |
-            Bash(git diff --name-only HEAD~1)
-            Bash(git diff HEAD~1)
-            Bash(git status)
-            Bash(npm run test)
-            Bash(npm run build)
-            Bash(npm run lint)
-            Bash(cargo check)
-            Bash(cargo test)
-            Read
-            Edit
-            Write
-            Glob
-            Grep
-            View
+          allowed_tools: "Bash(git diff --name-only HEAD~1),Bash(git diff HEAD~1),Bash(git status),Bash(npm run test),Bash(npm run build),Bash(npm run lint),Bash(cargo check),Bash(cargo test),Read,Edit,Write,Glob,Grep,View"
           custom_instructions: |
             あなたは日本語と英語の両方に対応したコーディングアシスタントです。
             Tauri, Rust, JavaScriptプロジェクトに特化してサポートしてください。
