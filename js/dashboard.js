@@ -3,8 +3,32 @@
  * ダッシュボードウィンドウ用のロジック（Hide/Showパターン対応）
  */
 
-// Tauri APIのインポート
-const { invoke } = window.__TAURI__.tauri;
+// Tauri APIの取得（初期化後に設定）
+let invoke = null;
+let clipboardAPI = null;
+
+// Tauri APIの初期化を待つ
+function waitForTauriAPI() {
+    return new Promise((resolve, reject) => {
+        let attempts = 0;
+        const maxAttempts = 50; // 5秒間待機
+        
+        function checkAPI() {
+            if (window.__TAURI__ && window.__TAURI__.tauri && window.__TAURI__.clipboard) {
+                invoke = window.__TAURI__.tauri.invoke;
+                clipboardAPI = window.__TAURI__.clipboard;
+                console.log('Tauri API initialized successfully');
+                resolve();
+            } else if (attempts < maxAttempts) {
+                attempts++;
+                setTimeout(checkAPI, 100);
+            } else {
+                reject(new Error('Tauri API not available after 5 seconds'));
+            }
+        }
+        checkAPI();
+    });
+}
 
 // DOM要素の取得
 let closeButton;
@@ -14,11 +38,30 @@ let dashboardContainer;
 let currentContext = 'default';
 
 // 初期化
-document.addEventListener('DOMContentLoaded', function() {
-    initializeDashboard();
-    setupEventListeners();
-    setupContextListener();
-    console.log('Dashboard window JavaScript initialized');
+document.addEventListener('DOMContentLoaded', async function() {
+    try {
+        // Tauri APIの初期化を待つ
+        await waitForTauriAPI();
+        
+        initializeDashboard();
+        setupEventListeners();
+        setupContextListener();
+        
+        // URLパラメータからコンテキストを取得（フォールバック）
+        const urlParams = new URLSearchParams(window.location.search);
+        const fallbackContext = urlParams.get('context');
+        if (fallbackContext) {
+            console.log('Loading content from URL parameter:', fallbackContext);
+            loadContentByContext(fallbackContext);
+        }
+        
+        console.log('Dashboard window JavaScript initialized');
+    } catch (error) {
+        console.error('Failed to initialize dashboard:', error);
+        // Tauri APIが使用できない場合のフォールバック
+        initializeDashboard();
+        setupEventListeners();
+    }
 });
 
 /**
@@ -77,8 +120,15 @@ function setupContextListener() {
         window.__TAURI__.event.listen('dashboard-context', (event) => {
             console.log('Context received:', event.payload);
             currentContext = event.payload;
-            loadContentByContext(currentContext);
+            
+            // DOMが準備できるまで少し待つ
+            setTimeout(() => {
+                loadContentByContext(currentContext);
+            }, 100);
         });
+        console.log('Context listener setup complete');
+    } else {
+        console.warn('Tauri event API not available for context listener');
     }
 }
 
@@ -100,6 +150,11 @@ async function handleCloseWindow() {
         // 少し待ってからRustコマンドを実行
         setTimeout(async () => {
             try {
+                if (!invoke) {
+                    console.error('Tauri invoke API not available');
+                    return;
+                }
+                
                 console.log('=== JavaScript: Calling close_dashboard command ===');
                 // close_dashboardコマンドが自動的にダッシュボードウィンドウを非表示にしてメインウィンドウを表示
                 await invoke('close_dashboard');
@@ -108,8 +163,10 @@ async function handleCloseWindow() {
                 console.error('Error calling close_dashboard:', error);
                 // エラーが発生した場合のフォールバック
                 try {
-                    await invoke('show_main_window');
-                    console.log('Fallback: show_main_window called successfully');
+                    if (invoke) {
+                        await invoke('show_main_window');
+                        console.log('Fallback: show_main_window called successfully');
+                    }
                 } catch (fallbackError) {
                     console.error('Fallback failed:', fallbackError);
                 }
@@ -207,25 +264,33 @@ document.head.appendChild(style);
  */
 function loadContentByContext(context) {
     const contentContainer = document.querySelector('.dashboard-content');
-    if (!contentContainer) return;
+    if (!contentContainer) {
+        console.warn('Content container not found, retrying in 100ms...');
+        setTimeout(() => loadContentByContext(context), 100);
+        return;
+    }
     
     let content = '';
     
     switch(context) {
         case 'view-a':
             content = generateClipboardMonitorContent();
-            startClipboardMonitoring();
+            contentContainer.innerHTML = content;
+            // DOMが更新された後に機能を開始
+            setTimeout(() => startClipboardMonitoring(), 50);
             break;
         case 'view-b':
             content = generateClockContent();
-            startClock();
+            contentContainer.innerHTML = content;
+            // DOMが更新された後に機能を開始
+            setTimeout(() => startClock(), 50);
             break;
         default:
             content = generateDefaultContent();
+            contentContainer.innerHTML = content;
             break;
     }
     
-    contentContainer.innerHTML = content;
     console.log(`Content loaded for context: ${context}`);
 }
 
@@ -316,11 +381,19 @@ function generateDefaultContent() {
  * クリップボード監視開始
  */
 function startClipboardMonitoring() {
+    console.log('Starting clipboard monitoring...');
+    
     const clipboardContent = document.getElementById('clipboard-content');
     const updateCount = document.getElementById('update-count');
     const lastUpdate = document.getElementById('last-update');
     const monitorStartTime = document.getElementById('monitor-start-time');
     const refreshButton = document.getElementById('refresh-clipboard');
+    
+    // DOM要素の存在確認
+    if (!clipboardContent) {
+        console.error('Clipboard content element not found');
+        return;
+    }
     
     let count = 0;
     
@@ -328,20 +401,34 @@ function startClipboardMonitoring() {
         monitorStartTime.textContent = new Date().toLocaleTimeString();
     }
     
+    // Tauri APIの利用可能性を確認
+    if (!clipboardAPI) {
+        console.error('Tauri clipboard API not available');
+        if (clipboardContent) {
+            clipboardContent.textContent = 'Tauri clipboard API が利用できません';
+        }
+        return;
+    }
+    
     async function updateClipboard() {
         try {
-            if (navigator.clipboard && navigator.clipboard.readText) {
-                const text = await navigator.clipboard.readText();
+            // Tauri のクリップボードAPIを使用
+            if (clipboardAPI && clipboardAPI.readText) {
+                const text = await clipboardAPI.readText();
                 if (clipboardContent) {
                     clipboardContent.textContent = text || '(空のクリップボード)';
                 }
                 count++;
                 if (updateCount) updateCount.textContent = count;
                 if (lastUpdate) lastUpdate.textContent = new Date().toLocaleTimeString();
+                console.log('Clipboard updated successfully');
+            } else {
+                throw new Error('Tauri clipboard API not available');
             }
         } catch (error) {
+            console.error('Clipboard access error:', error);
             if (clipboardContent) {
-                clipboardContent.textContent = 'クリップボードアクセスが許可されていません';
+                clipboardContent.textContent = `クリップボードアクセスエラー: ${error.message}`;
             }
         }
     }
@@ -367,8 +454,19 @@ function startClipboardMonitoring() {
  * 時計表示開始
  */
 function startClock() {
+    console.log('Starting clock display...');
+    
     const timeElement = document.getElementById('current-time');
     const dateElement = document.getElementById('current-date');
+    
+    // DOM要素の存在確認
+    if (!timeElement || !dateElement) {
+        console.error('Clock elements not found:', {
+            timeElement: !!timeElement,
+            dateElement: !!dateElement
+        });
+        return;
+    }
     
     function updateClock() {
         const now = new Date();
