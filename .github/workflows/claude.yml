@@ -29,20 +29,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         
-      - name: Run Claude Code
-        uses: anthropics/claude-code-base-action@beta
+      - name: Run Claude Code Action (GitHub Integration)
+        uses: anthropics/claude-code-action@beta
         with:
-          prompt: |
-            Based on the user's request in the issue or comment, provide helpful assistance.
-            Analyze the codebase if needed and provide detailed responses.
-            If code changes are requested, implement them following best practices.
-            When creating new files or making changes, always:
-            1. Follow Python best practices and PEP 8
-            2. Add appropriate documentation and comments
-            3. Include error handling where appropriate
-            4. Consider security implications
-          allowed_tools: "Bash(git:*),View,GlobTool,GrepTool,BatchTool"
-          max_turns: "10"
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
 
   # Pull Request 自動レビュー
@@ -63,7 +52,7 @@ jobs:
         with:
           prompt: |
             Review this pull request thoroughly:
-            1. Code quality and Python best practices
+            1. Code quality and JavaScript/Tauri best practices
             2. Potential bugs or security issues  
             3. Performance considerations
             4. Test coverage and documentation
@@ -95,7 +84,7 @@ jobs:
           prompt: |
             Based on the issue description, implement the requested feature comprehensively:
             1. Analyze the existing codebase structure
-            2. Implement the feature following project patterns
+            2. Implement the feature following project patterns (JavaScript/Tauri)
             3. Create or update tests as needed
             4. Update documentation if required
             5. Ensure backward compatibility
