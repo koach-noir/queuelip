@@ -4,15 +4,15 @@ use tauri::{Manager, RunEvent};
 use tauri_plugin_log::LogTarget;
 use log::{info, warn, error};
 
-// miniウィンドウの設定オプション
-const MINI_WINDOW_CONFIG: MiniWindowConfig = MiniWindowConfig {
+// dashboardウィンドウの設定オプション
+const DASHBOARD_WINDOW_CONFIG: DashboardWindowConfig = DashboardWindowConfig {
     always_on_top: false,          // 通常ウィンドウ
     resizable: true,               // 可変サイズ
     width: 400.0,
     height: 350.0,
 };
 
-struct MiniWindowConfig {
+struct DashboardWindowConfig {
     always_on_top: bool,
     resizable: bool,
     width: f64,
@@ -67,47 +67,47 @@ async fn hide_main_window(app_handle: tauri::AppHandle) -> Result<(), String> {
     Ok(())
 }
 
-// miniウィンドウを開くコマンド（メインウィンドウを非表示にする）
+// ダッシュボードウィンドウを開くコマンド（メインウィンドウを非表示にする）
 #[tauri::command]
-async fn open_mini_window(app_handle: tauri::AppHandle) -> Result<(), String> {
-    info!("=== open_mini_window called ===");
+async fn open_dashboard(app_handle: tauri::AppHandle) -> Result<(), String> {
+    info!("=== open_dashboard called ===");
     
-    // 既存のminiウィンドウがあれば表示
-    if let Some(existing_mini) = app_handle.get_window("mini") {
-        info!("Mini window already exists, showing it");
-        existing_mini.show().map_err(|e| e.to_string())?;
-        existing_mini.set_focus().map_err(|e| e.to_string())?;
+    // 既存のdashboardウィンドウがあれば表示
+    if let Some(existing_dashboard) = app_handle.get_window("dashboard") {
+        info!("Dashboard window already exists, showing it");
+        existing_dashboard.show().map_err(|e| e.to_string())?;
+        existing_dashboard.set_focus().map_err(|e| e.to_string())?;
     } else {
-        // miniウィンドウを新規作成
-        info!("Creating new mini window");
-        let mini_window = tauri::WindowBuilder::new(
+        // dashboardウィンドウを新規作成
+        info!("Creating new dashboard window");
+        let dashboard_window = tauri::WindowBuilder::new(
             &app_handle,
-            "mini", // ユニークラベル
-            tauri::WindowUrl::App("mini.html".into())
+            "dashboard", // ユニークラベル
+            tauri::WindowUrl::App("dashboard.html".into())
         )
-        .title("Mini View")
+        .title("Dashboard")
         .decorations(false)     // ベゼルレス
-        .always_on_top(MINI_WINDOW_CONFIG.always_on_top)
-        .resizable(MINI_WINDOW_CONFIG.resizable)
-        .inner_size(MINI_WINDOW_CONFIG.width, MINI_WINDOW_CONFIG.height)
+        .always_on_top(DASHBOARD_WINDOW_CONFIG.always_on_top)
+        .resizable(DASHBOARD_WINDOW_CONFIG.resizable)
+        .inner_size(DASHBOARD_WINDOW_CONFIG.width, DASHBOARD_WINDOW_CONFIG.height)
         .center()              // 画面中央に表示
         .visible(true)         // 明示的に表示
         .build()
         .map_err(|e| {
-            error!("Failed to create mini window: {}", e);
+            error!("Failed to create dashboard window: {}", e);
             e.to_string()
         })?;
         
-        // miniウィンドウが閉じられた時のイベントハンドラを設定
+        // dashboardウィンドウが閉じられた時のイベントハンドラを設定
         let app_handle_clone = app_handle.clone();
-        mini_window.on_window_event(move |event| {
+        dashboard_window.on_window_event(move |event| {
             match event {
                 tauri::WindowEvent::CloseRequested { api, .. } => {
-                    info!("=== Mini window close event detected ===");
-                    // miniウィンドウを非表示にして閉じることを防ぐ
-                    if let Some(mini_window) = app_handle_clone.get_window("mini") {
-                        if let Err(e) = mini_window.hide() {
-                            error!("Failed to hide mini window: {}", e);
+                    info!("=== Dashboard window close event detected ===");
+                    // dashboardウィンドウを非表示にして閉じることを防ぐ
+                    if let Some(dashboard_window) = app_handle_clone.get_window("dashboard") {
+                        if let Err(e) = dashboard_window.hide() {
+                            error!("Failed to hide dashboard window: {}", e);
                         }
                     }
                     api.prevent_close();
@@ -136,19 +136,19 @@ async fn open_mini_window(app_handle: tauri::AppHandle) -> Result<(), String> {
     Ok(())
 }
 
-// miniウィンドウを閉じるコマンド（Hide/Showパターン）
+// dashboardウィンドウを閉じるコマンド（Hide/Showパターン）
 #[tauri::command]
-async fn close_mini_window(app_handle: tauri::AppHandle) -> Result<(), String> {
-    info!("=== close_mini_window called ===");
+async fn close_dashboard(app_handle: tauri::AppHandle) -> Result<(), String> {
+    info!("=== close_dashboard called ===");
     
-    if let Some(mini_window) = app_handle.get_window("mini") {
-        mini_window.hide().map_err(|e| {
-            error!("Failed to hide mini window: {}", e);
+    if let Some(dashboard_window) = app_handle.get_window("dashboard") {
+        dashboard_window.hide().map_err(|e| {
+            error!("Failed to hide dashboard window: {}", e);
             e.to_string()
         })?;
-        info!("Mini window hidden successfully");
+        info!("Dashboard window hidden successfully");
     } else {
-        warn!("Mini window not found for closing");
+        warn!("Dashboard window not found for closing");
     }
     
     // メインウィンドウを表示
@@ -180,8 +180,8 @@ fn main() {
         // コマンドを登録
         .invoke_handler(tauri::generate_handler![
             exit_app,
-            open_mini_window,
-            close_mini_window,
+            open_dashboard,
+            close_dashboard,
             show_main_window,
             hide_main_window
         ])

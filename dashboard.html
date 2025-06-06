@@ -3,25 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini View</title>
+    <title>Dashboard</title>
     <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/mini.css">
+    <link rel="stylesheet" href="css/dashboard.css">
     
     <!-- ログシステム初期化 - 外部ファイルで実行 -->
-    <script type="module" src="js/mini-init.js"></script>
+    <script type="module" src="js/dashboard-init.js"></script>
 </head>
 <body>
-    <div class="mini-container">
+    <div class="dashboard-container">
         <!-- ヘッダー（ドラッグエリア + 閉じるボタン） -->
-        <div class="mini-header" data-tauri-drag-region>
-            <h2 class="mini-title">Mini View</h2>
+        <div class="dashboard-header" data-tauri-drag-region>
+            <h2 class="dashboard-title">Dashboard</h2>
             <button id="closeButton" class="close-button" title="閉じる">×</button>
         </div>
         
         <!-- コンテンツエリア -->
-        <div class="mini-content">
+        <div class="dashboard-content">
             <!-- アコーディオン1 -->
-            <details class="mini-accordion">
+            <details class="dashboard-accordion">
                 <summary>設定</summary>
                 <div class="accordion-content">
                     <p>アプリケーションの基本設定を行います。</p>
@@ -34,7 +34,7 @@
             </details>
             
             <!-- アコーディオン2 -->
-            <details class="mini-accordion">
+            <details class="dashboard-accordion">
                 <summary>統計情報</summary>
                 <div class="accordion-content">
                     <p>使用状況の統計データです。</p>
@@ -47,7 +47,7 @@
             </details>
             
             <!-- アコーディオン3 -->
-            <details class="mini-accordion">
+            <details class="dashboard-accordion">
                 <summary>ヘルプ</summary>
                 <div class="accordion-content">
                     <p>Queuelipの使用方法とヒントです。</p>
@@ -61,12 +61,12 @@
         </div>
         
         <!-- フッター -->
-        <div class="mini-footer">
-            <small>Mini View - Queuelip</small>
+        <div class="dashboard-footer">
+            <small>Dashboard - Queuelip</small>
         </div>
     </div>
     
     <!-- JavaScript -->
-    <script type="module" src="js/mini.js"></script>
+    <script type="module" src="js/dashboard.js"></script>
 </body>
 </html>

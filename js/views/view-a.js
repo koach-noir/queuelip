@@ -24,24 +24,24 @@ export function initializeViewA() {
   if (popButton) {
     popButton.addEventListener('click', async function() {
       try {
-        console.log('POP button clicked - opening mini window');
+        console.log('POP button clicked - opening dashboard window');
         
         // ボタンの視覚的フィードバック
         popButton.disabled = true;
         popButton.textContent = 'OPENING...';
         
-        // Tauri APIを使用してminiウィンドウを開く
+        // Tauri APIを使用してダッシュボードウィンドウを開く
         if (window.__TAURI__ && window.__TAURI__.tauri) {
-          await window.__TAURI__.tauri.invoke('open_mini_window');
-          console.log('Mini window opened successfully');
+          await window.__TAURI__.tauri.invoke('open_dashboard');
+          console.log('Dashboard window opened successfully');
         } else {
           console.error('Tauri API not available');
-          alert('Mini window feature requires Tauri environment');
+          alert('Dashboard window feature requires Tauri environment');
         }
         
       } catch (error) {
-        console.error('Error opening mini window:', error);
-        alert('Failed to open mini window: ' + error.message);
+        console.error('Error opening dashboard window:', error);
+        alert('Failed to open dashboard window: ' + error.message);
       } finally {
         // ボタンを元に戻す（少し遅延させて視覚的効果を持続）
         setTimeout(() => {

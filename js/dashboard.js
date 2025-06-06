@@ -1,6 +1,6 @@
 /**
- * Mini Window JavaScript
- * miniウィンドウ用のロジック（Hide/Showパターン対応）
+ * Dashboard Window JavaScript
+ * ダッシュボードウィンドウ用のロジック（Hide/Showパターン対応）
  */
 
 // Tauri APIのインポート
@@ -8,31 +8,31 @@ const { invoke } = window.__TAURI__.tauri;
 
 // DOM要素の取得
 let closeButton;
-let miniContainer;
+let dashboardContainer;
 
 // 初期化
 document.addEventListener('DOMContentLoaded', function() {
-    initializeMiniWindow();
+    initializeDashboard();
     setupEventListeners();
-    console.log('Mini window JavaScript initialized');
+    console.log('Dashboard window JavaScript initialized');
 });
 
 /**
- * Mini窓の初期化
+ * ダッシュボードの初期化
  */
-function initializeMiniWindow() {
+function initializeDashboard() {
     closeButton = document.getElementById('closeButton');
-    miniContainer = document.querySelector('.mini-container');
+    dashboardContainer = document.querySelector('.dashboard-container');
     
     // 初期表示時のアニメーション
-    if (miniContainer) {
-        miniContainer.style.opacity = '0';
-        miniContainer.style.transform = 'scale(0.9)';
+    if (dashboardContainer) {
+        dashboardContainer.style.opacity = '0';
+        dashboardContainer.style.transform = 'scale(0.9)';
         
         setTimeout(() => {
-            miniContainer.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-            miniContainer.style.opacity = '1';
-            miniContainer.style.transform = 'scale(1)';
+            dashboardContainer.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+            dashboardContainer.style.opacity = '1';
+            dashboardContainer.style.transform = 'scale(1)';
         }, 50);
     }
 }
@@ -54,7 +54,7 @@ function setupEventListeners() {
     });
     
     // アコーディオンのアニメーション強化
-    const accordions = document.querySelectorAll('.mini-accordion');
+    const accordions = document.querySelectorAll('.dashboard-accordion');
     accordions.forEach(accordion => {
         accordion.addEventListener('toggle', handleAccordionToggle);
     });
@@ -66,28 +66,28 @@ function setupEventListeners() {
 
 /**
  * ウィンドウを閉じる処理
- * 注意: Hide/Showパターンに変更 - close_mini_windowコマンドを呼び出す
+ * 注意: Hide/Showパターンに変更 - close_dashboardコマンドを呼び出す
  */
 async function handleCloseWindow() {
     try {
-        console.log('=== JavaScript: Closing mini window (Hide/Show pattern) ===');
+        console.log('=== JavaScript: Closing dashboard window (Hide/Show pattern) ===');
         
         // 閉じるアニメーション
-        if (miniContainer) {
-            miniContainer.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
-            miniContainer.style.opacity = '0';
-            miniContainer.style.transform = 'scale(0.9)';
+        if (dashboardContainer) {
+            dashboardContainer.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+            dashboardContainer.style.opacity = '0';
+            dashboardContainer.style.transform = 'scale(0.9)';
         }
         
         // 少し待ってからRustコマンドを実行
         setTimeout(async () => {
             try {
-                console.log('=== JavaScript: Calling close_mini_window command ===');
-                // close_mini_windowコマンドが自動的にminiウィンドウを非表示にしてメインウィンドウを表示
-                await invoke('close_mini_window');
-                console.log('close_mini_window command completed successfully');
+                console.log('=== JavaScript: Calling close_dashboard command ===');
+                // close_dashboardコマンドが自動的にダッシュボードウィンドウを非表示にしてメインウィンドウを表示
+                await invoke('close_dashboard');
+                console.log('close_dashboard command completed successfully');
             } catch (error) {
-                console.error('Error calling close_mini_window:', error);
+                console.error('Error calling close_dashboard:', error);
                 // エラーが発生した場合のフォールバック
                 try {
                     await invoke('show_main_window');
@@ -125,8 +125,8 @@ function handleAccordionToggle(event) {
  * ウィンドウフォーカス喪失時の処理
  */
 function handleWindowBlur() {
-    if (miniContainer) {
-        miniContainer.style.opacity = '0.8';
+    if (dashboardContainer) {
+        dashboardContainer.style.opacity = '0.8';
     }
 }
 
@@ -134,8 +134,8 @@ function handleWindowBlur() {
  * ウィンドウフォーカス時の処理
  */
 function handleWindowFocus() {
-    if (miniContainer) {
-        miniContainer.style.opacity = '1';
+    if (dashboardContainer) {
+        dashboardContainer.style.opacity = '1';
     }
 }
 
@@ -143,27 +143,27 @@ function handleWindowFocus() {
  * 設定オプションの動的変更（将来の拡張用）
  */
 function applyWindowOptions(options = {}) {
-    if (!miniContainer) return;
+    if (!dashboardContainer) return;
     
     // 透明度モード
     if (options.transparentMode) {
-        miniContainer.classList.add('transparent-mode');
+        dashboardContainer.classList.add('transparent-mode');
     } else {
-        miniContainer.classList.remove('transparent-mode');
+        dashboardContainer.classList.remove('transparent-mode');
     }
     
     // 最前面モード  
     if (options.alwaysOnTop) {
-        miniContainer.classList.add('always-on-top');
+        dashboardContainer.classList.add('always-on-top');
     } else {
-        miniContainer.classList.remove('always-on-top');
+        dashboardContainer.classList.remove('always-on-top');
     }
     
     // 固定サイズモード
     if (options.fixedSize) {
-        miniContainer.classList.add('fixed-size');
+        dashboardContainer.classList.add('fixed-size');
     } else {
-        miniContainer.classList.remove('fixed-size');
+        dashboardContainer.classList.remove('fixed-size');
     }
 }
 
@@ -184,7 +184,7 @@ style.textContent = `
 document.head.appendChild(style);
 
 // エクスポート（将来のモジュール化用）
-window.miniWindowAPI = {
+window.dashboardAPI = {
     close: handleCloseWindow,
     applyOptions: applyWindowOptions
 };
