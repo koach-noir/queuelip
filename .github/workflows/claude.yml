@@ -14,14 +14,19 @@ jobs:
   claude-response:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       issues: write
       pull-requests: write
       id-token: write
+      actions: read
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
       - uses: anthropics/claude-code-action@beta
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           anthropic_model: "claude-3-5-sonnet-20241022"
           timeout_minutes: 30
           custom_instructions: |
