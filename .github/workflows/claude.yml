@@ -27,10 +27,6 @@ jobs:
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          anthropic_model: "claude-3-5-sonnet-20241022"
-          timeout_minutes: 10
-          max_tokens: 2000
-          allowed_tools: "Read,Edit,View"
-          custom_instructions: |
-            Tauri+Rust+JavaScript専用アシスタント。
-            簡潔で効率的な回答を心がける。
+          timeout_minutes: 3
+          allowed_tools: "Edit"
+          custom_instructions: "CSS修正のみ"
