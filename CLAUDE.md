@@ -1,4 +1,4 @@
-# Claude Code Configuration for queuelip
+# Development Guidelines for queuelip
 
 ## Project Overview
 queuelip - A Tauri-based desktop application built with JavaScript/HTML/CSS and Rust backend.
@@ -35,7 +35,7 @@ queuelip - A Tauri-based desktop application built with JavaScript/HTML/CSS and 
 
 ## Project Structure
 - `index.html` - Main application entry point
-- `mini.html` - Minimal version
+- `dashboard.html` - Dashboard view
 - `js/` - JavaScript modules and logic
 - `css/` - Stylesheets and design assets
 - `src-tauri/` - Rust backend code
@@ -115,8 +115,8 @@ When reviewing code, focus on:
 - Log errors appropriately for debugging
 - Handle network and file system errors gracefully
 
-## Claude Code Usage Tips
+## Development Best Practices
 - Specify whether changes are for frontend or backend
 - Mention target platforms if relevant
 - Include context about Tauri-specific requirements
-- Ask for cross-platform considerations when needed
+- Consider cross-platform compatibility when implementing features
