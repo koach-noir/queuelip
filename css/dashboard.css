@@ -8,7 +8,7 @@
     /* オプション切り替え用変数 */
     --dashboard-bg-opacity: 0.9;              /* 半透明度 (0.0-1.0) */
     --dashboard-bg-color: rgba(30, 30, 30, var(--dashboard-bg-opacity));
-    --dashboard-border-radius: 12px;          /* 角の丸み */
+    --dashboard-border-radius: 0px;           /* ベゼルレス対応 */
     --dashboard-backdrop-blur: 10px;          /* 背景ブラー効果 */
     
     /* カラーテーマ */
@@ -35,17 +35,28 @@ body {
     height: 100vh;
     background: var(--dashboard-bg-color);
     backdrop-filter: blur(var(--dashboard-backdrop-blur));
-    border-radius: var(--dashboard-border-radius);
-    border: 1px solid var(--dashboard-border-color);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    transition: var(--dashboard-transition);
+    transition: var(--dashboard-transition), opacity 0.3s ease;
 }
 
+/* ベゼルレス効果のためhoverシャドウを削除 */
 .dashboard-container:hover {
-    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.4);
+    /* box-shadow: none; */
+}
+
+/* フォーカスしていない時の透明効果 */
+.dashboard-container:not(:focus-within) {
+    opacity: 0.8;
+}
+
+/* フォーカス時の完全不透明 */
+.dashboard-container:focus-within {
+    opacity: 1;
 }
 
 /* === ヘッダー === */
@@ -54,7 +65,7 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 12px 16px 8px 16px;
-    border-bottom: 1px solid var(--dashboard-border-color);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     background: rgba(255, 255, 255, 0.05);
     cursor: move; /* ドラッグ可能 */
 }
@@ -164,7 +175,7 @@ body {
 
 .accordion-content {
     padding: 0 16px 16px 16px;
-    border-top: 1px solid var(--dashboard-border-color);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
     animation: slideDown 0.2s ease-out;
 }
 
@@ -201,7 +212,7 @@ body {
 /* === フッター === */
 .dashboard-footer {
     padding: 8px 16px;
-    border-top: 1px solid var(--dashboard-border-color);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
     background: rgba(255, 255, 255, 0.03);
     text-align: center;
 }
