@@ -89,6 +89,8 @@ jobs:
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
 
       # macOS環境の最適化
       - name: Configure macOS build environment
@@ -96,13 +98,16 @@ jobs:
           echo "CARGO_INCREMENTAL=0" >> $GITHUB_ENV
           echo "CARGO_NET_RETRY=10" >> $GITHUB_ENV
           echo "CARGO_BUILD_JOBS=4" >> $GITHUB_ENV
+          # ユニバーサルバイナリ用の設定
+          echo "TAURI_PRIVATE_KEY=" >> $GITHUB_ENV
+          echo "TAURI_KEY_PASSWORD=" >> $GITHUB_ENV
         shell: bash
 
       - name: Install dependencies
         run: npm install --no-audit --prefer-offline
 
       - name: Build the app
-        run: npm run tauri build
+        run: npm run tauri build -- --target universal-apple-darwin
         env:
           # 並列ビルドを最適化
           CARGO_BUILD_JOBS: 4
@@ -110,17 +115,19 @@ jobs:
       - name: Fix app permissions for macOS
         run: |
           # .appファイルに実行権限を付与
-          find src-tauri/target/release/bundle/macos -name "*.app" -exec chmod +x {}/Contents/MacOS/* \;
+          find src-tauri/target -name "*.app" -exec chmod +x {}/Contents/MacOS/* \;
           # Gatekeeperの制限を軽減するため quarantine属性を事前削除
-          find src-tauri/target/release/bundle/macos -name "*.app" -exec xattr -c {} \;
+          find src-tauri/target -name "*.app" -exec xattr -c {} \;
           # アドホック署名を追加（開発者アカウント不要）
-          find src-tauri/target/release/bundle/macos -name "*.app" -exec codesign --force --deep --sign - {} \;
+          find src-tauri/target -name "*.app" -exec codesign --force --deep --sign - {} \;
         shell: bash
 
       - name: List build outputs
         run: |
           echo "=== Build output directory structure ==="
-          find src-tauri/target/release/bundle -type f -name "*" | head -20
+          find src-tauri/target -name "bundle" -type d -exec find {} -type f -name "*" \; | head -20
+          echo "=== Universal build check ==="
+          find src-tauri/target -name "*.app" -exec file {}/Contents/MacOS/* \;
         shell: bash
 
       - name: Upload artifacts
@@ -128,8 +135,8 @@ jobs:
         with:
           name: Queuelip-macos-bld
           path: |
-            src-tauri/target/release/bundle/dmg/
-            src-tauri/target/release/bundle/macos/
+            src-tauri/target/universal-apple-darwin/release/bundle/dmg/
+            src-tauri/target/universal-apple-darwin/release/bundle/macos/
           if-no-files-found: warn
 
   release:
