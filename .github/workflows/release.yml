@@ -118,8 +118,8 @@ jobs:
         with:
           name: Queuelip-macos-bld
           path: |
-            src-tauri/target/release/bundle/dmg/*.dmg
-            src-tauri/target/release/bundle/macos/*.app
+            src-tauri/target/release/bundle/dmg/
+            src-tauri/target/release/bundle/macos/
           if-no-files-found: warn
 
   release:
@@ -150,6 +150,8 @@ jobs:
           name: Release v${{ github.run_number }}
           draft: false
           prerelease: false
-          files: artifacts/**/*
+          files: |
+            artifacts/**/*.dmg
+            artifacts/**/*.app
           token: ${{ secrets.GITHUB_TOKEN }}
           generate_release_notes: true
