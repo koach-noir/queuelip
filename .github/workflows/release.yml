@@ -89,8 +89,6 @@ jobs:
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
-        with:
-          profile: minimal
 
       # macOS環境の最適化
       - name: Configure macOS build environment
@@ -120,7 +118,8 @@ jobs:
         with:
           name: Queuelip-macos-bld
           path: |
-            src-tauri/target/release/bundle/**/*
+            src-tauri/target/release/bundle/dmg/*.dmg
+            src-tauri/target/release/bundle/macos/*.app
           if-no-files-found: warn
 
   release:
@@ -143,6 +142,8 @@ jobs:
           name: Release v${{ github.run_number }}
           draft: false
           prerelease: false
-          files: artifacts/**/*
+          files: |
+            artifacts/Queuelip-macos-bld/**/*.dmg
+            artifacts/Queuelip-macos-bld/**/*.app
           token: ${{ secrets.GITHUB_TOKEN }}
           generate_release_notes: true
