@@ -73,6 +73,27 @@ chmod +x /Applications/Queuelip.app/Contents/MacOS/*
 2. 「開く」を選択
 3. 警告ダイアログで「開く」をクリック
 
+#### 方法4: 「マルウェア検証エラー」が出る場合
+「このアプリケーションにマルウェアが含まれていないことを検証できません」エラーの場合：
+
+1. **一時的にGatekeeperを無効化**（推奨しません）：
+   ```bash
+   sudo spctl --master-disable
+   # アプリ起動後に再有効化
+   sudo spctl --master-enable
+   ```
+
+2. **特定アプリのみ許可**（推奨）：
+   ```bash
+   sudo spctl --add /Applications/Queuelip.app
+   ```
+
+3. **完全なリセット**：
+   ```bash
+   sudo xattr -cr /Applications/Queuelip.app
+   sudo codesign --force --deep --sign - /Applications/Queuelip.app
+   ```
+
 ## ライセンス
 
 MIT
