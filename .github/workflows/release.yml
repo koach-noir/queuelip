@@ -107,6 +107,14 @@ jobs:
           # 並列ビルドを最適化
           CARGO_BUILD_JOBS: 4
 
+      - name: Fix app permissions for macOS
+        run: |
+          # .appファイルに実行権限を付与
+          find src-tauri/target/release/bundle/macos -name "*.app" -exec chmod +x {}/Contents/MacOS/* \;
+          # Gatekeeperの制限を軽減するため quarantine属性を事前削除
+          find src-tauri/target/release/bundle/macos -name "*.app" -exec xattr -c {} \;
+        shell: bash
+
       - name: List build outputs
         run: |
           echo "=== Build output directory structure ==="
