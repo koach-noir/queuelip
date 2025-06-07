@@ -53,7 +53,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [windows-latest]
+        platform: [macos-latest]
 
     runs-on: ${{ matrix.platform }}
     steps:
@@ -92,10 +92,9 @@ jobs:
         with:
           profile: minimal
 
-      # Windows環境の最適化
-      - name: Configure Windows build environment
+      # macOS環境の最適化
+      - name: Configure macOS build environment
         run: |
-          echo "RUSTFLAGS=-C target-feature=+crt-static" >> $GITHUB_ENV
           echo "CARGO_INCREMENTAL=0" >> $GITHUB_ENV
           echo "CARGO_NET_RETRY=10" >> $GITHUB_ENV
           echo "CARGO_BUILD_JOBS=4" >> $GITHUB_ENV
@@ -113,10 +112,10 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: Queuelip-windows-bld
+          name: Queuelip-macos-bld
           path: |
-            src-tauri/target/release/bundle/msi/*.msi
-            src-tauri/target/release/*.exe
+            src-tauri/target/release/bundle/dmg/*.dmg
+            src-tauri/target/release/bundle/macos/*.app
           if-no-files-found: ignore
 
   release:
