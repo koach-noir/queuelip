@@ -134,6 +134,14 @@ jobs:
         with:
           path: artifacts
 
+      - name: Debug artifacts structure
+        run: |
+          echo "=== Downloaded artifacts structure ==="
+          find artifacts -type f -name "*" | head -20
+          echo "=== Looking for dmg and app files ==="
+          find artifacts -name "*.dmg" -o -name "*.app" | head -10
+        shell: bash
+
       - name: Create Release
         id: create_release
         uses: softprops/action-gh-release@v1
@@ -142,8 +150,6 @@ jobs:
           name: Release v${{ github.run_number }}
           draft: false
           prerelease: false
-          files: |
-            artifacts/Queuelip-macos-bld/**/*.dmg
-            artifacts/Queuelip-macos-bld/**/*.app
+          files: artifacts/**/*
           token: ${{ secrets.GITHUB_TOKEN }}
           generate_release_notes: true
