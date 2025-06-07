@@ -55,13 +55,23 @@ npm run tauri build
 ### セキュリティ警告が出る場合
 未署名アプリのため、初回実行時にセキュリティ警告が表示される場合があります：
 
+#### 方法1: ターミナルで属性削除（推奨）
 ```bash
-# ターミナルで実行権限を付与
-chmod +x /path/to/Queuelip.app/Contents/MacOS/queuelip
+# quarantine属性を削除
+xattr -d com.apple.quarantine /Applications/Queuelip.app
 
-# または、quarantine属性を削除
-xattr -d com.apple.quarantine /path/to/Queuelip.app
+# 実行権限を確認・付与
+chmod +x /Applications/Queuelip.app/Contents/MacOS/*
 ```
+
+#### 方法2: システム環境設定
+1. システム環境設定 → セキュリティとプライバシー → 一般
+2. 「"Queuelip"は開発元が未確認のため開けませんでした」の隣の「このまま開く」をクリック
+
+#### 方法3: 右クリックで開く
+1. Queuelip.appを右クリック
+2. 「開く」を選択
+3. 警告ダイアログで「開く」をクリック
 
 ## ライセンス
 

@@ -113,6 +113,8 @@ jobs:
           find src-tauri/target/release/bundle/macos -name "*.app" -exec chmod +x {}/Contents/MacOS/* \;
           # Gatekeeperの制限を軽減するため quarantine属性を事前削除
           find src-tauri/target/release/bundle/macos -name "*.app" -exec xattr -c {} \;
+          # アドホック署名を追加（開発者アカウント不要）
+          find src-tauri/target/release/bundle/macos -name "*.app" -exec codesign --force --deep --sign - {} \;
         shell: bash
 
       - name: List build outputs
