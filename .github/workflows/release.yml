@@ -109,14 +109,19 @@ jobs:
           # 並列ビルドを最適化
           CARGO_BUILD_JOBS: 4
 
+      - name: List build outputs
+        run: |
+          echo "=== Build output directory structure ==="
+          find src-tauri/target/release/bundle -type f -name "*" | head -20
+        shell: bash
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: Queuelip-macos-bld
           path: |
-            src-tauri/target/release/bundle/dmg/*.dmg
-            src-tauri/target/release/bundle/macos/*.app
-          if-no-files-found: ignore
+            src-tauri/target/release/bundle/**/*
+          if-no-files-found: warn
 
   release:
     needs: build
